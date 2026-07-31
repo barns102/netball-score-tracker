@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07131f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Netball Tracker">
+  <title>Netball Score Tracker</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f8fbff;
+      --muted: #9fb0c0;
+      --line: rgba(255, 255, 255, .11);
+      --panel: #102131;
+      --panel-2: #14293c;
+      --navy: #07131f;
+      --green: #19c37d;
+      --green-dark: #075c42;
+      --red: #ff5d6c;
+      --red-dark: #702735;
+      --amber: #ffc857;
+      --blue: #60a5fa;
+      --shadow: 0 14px 36px rgba(0, 0, 0, .25);
+      font-family: Inter, ui-rounded, "SF Pro Rounded", "SF Pro Display", -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      background: var(--navy);
+      color: var(--ink);
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+    }
+
+    body {
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      border: 0;
+      color: inherit;
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    button:focus-visible,
+    input:focus-visible {
+      outline: 3px solid var(--amber);
+      outline-offset: 2px;
+    }
+
+    button:active { transform: scale(.975); }
+
+    .app {
+      width: min(100%, 520px);
+      min-height: 100dvh;
+      margin: 0 auto;
+      background:
+        radial-gradient(circle at 50% -15%, rgba(96, 165, 250, .18), transparent 34%),
+        var(--navy);
+      position: relative;
+    }
+
+    .topbar {
+      height: calc(56px + env(safe-area-inset-top));
+      padding: env(safe-area-inset-top) 14px 0;
+      display: grid;
+      grid-template-columns: 44px 1fr 44px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: .01em;
+    }
+
+    .quarter-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      height: 28px;
+      padding: 0 9px;
+      border-radius: 999px;
+      color: var(--amber);
+      background: rgba(255, 200, 87, .12);
+      font-size: 13px;
+      font-weight: 900;
+      justify-self: start;
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .08);
+      justify-self: end;
+      font-size: 23px;
+      line-height: 1;
+    }
+
+    .live {
+      min-height: calc(100dvh - 56px - env(safe-area-inset-top));
+      padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(145deg, var(--panel-2), var(--panel));
+      box-shadow: var(--shadow);
+    }
+
+    .timer-card {
+      padding: 9px 10px 10px;
+      text-align: center;
+    }
+
+    .timer-meta {
+      min-height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .timer-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .timer-dot.running {
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(25, 195, 125, .12);
+    }
+
+    .timer {
+      margin: 0 0 6px;
+      font-size: clamp(51px, 16vw, 72px);
+      font-weight: 900;
+      line-height: .98;
+      letter-spacing: -.055em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-controls {
+      display: grid;
+      grid-template-columns: 2.15fr 1fr;
+      gap: 8px;
+    }
+
+    .timer-button {
+      min-height: 48px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, .09);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .timer-button.primary {
+      background: var(--green);
+      color: #04261b;
+      font-size: 17px;
+    }
+
+    .timer-button.primary.paused {
+      background: var(--amber);
+      color: #352300;
+    }
+
+    .scoreboard {
+      padding: 9px 15px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 11px;
+      background:
+        linear-gradient(120deg, rgba(25, 195, 125, .08), transparent 40%),
+        linear-gradient(240deg, rgba(96, 165, 250, .08), transparent 40%),
+        var(--panel);
+    }
+
+    .team { text-align: center; }
+
+    .team-name {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+    }
+
+    .score {
+      margin-top: -3px;
+      font-size: clamp(54px, 15vw, 68px);
+      font-weight: 950;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .score.home { color: #64e6af; }
+    .score.away { color: #8bbcff; }
+
+    .score-separator {
+      color: rgba(255, 255, 255, .3);
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .shooters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .shooter-card {
+      padding: 9px;
+      min-width: 0;
+    }
+
+    .shooter-head {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 5px;
+    }
+
+    .shooter-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .shooter-stats {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .score-action {
+      min-height: 74px;
+      padding: 8px 3px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border-radius: 17px;
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: .02em;
+    }
+
+    .score-action .symbol {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .goal-btn {
+      background: linear-gradient(150deg, #29d994, var(--green));
+      color: #03291d;
+    }
+
+    .miss-btn {
+      background: linear-gradient(150deg, #ff7380, var(--red));
+      color: #38070d;
+    }
+
+    .undo-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-top: 6px;
+    }
+
+    .undo-btn {
+      min-height: 31px;
+      padding: 3px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .07);
+      color: #c4d0da;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .opposition-card {
+      padding: 9px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .opposition-btn {
+      min-height: 67px;
+      border-radius: 17px;
+      background: linear-gradient(145deg, #7cb9ff, var(--blue));
+      color: #061c36;
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing: .02em;
+    }
+
+    .opposition-btn span {
+      margin-right: 7px;
+      font-size: 25px;
+    }
+
+    .opposition-undo {
+      width: 66px;
+      min-height: 67px;
+      border-radius: 17px;
+      background: rgba(255, 255, 255, .08);
+      color: #c4d0da;
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      background: rgba(0, 0, 0, .58);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease;
+    }
+
+    .backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer {
+      position: fixed;
+      z-index: 30;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(91vw, 410px);
+      padding: calc(15px + env(safe-area-inset-top)) 15px calc(20px + env(safe-area-inset-bottom));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      background: #0b1a28;
+      box-shadow: -18px 0 50px rgba(0, 0, 0, .42);
+      transform: translateX(105%);
+      transition: transform .25s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .drawer-title {
+      margin: 0;
+      font-size: 23px;
+      font-weight: 900;
+    }
+
+    .drawer-close {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .08);
+      font-size: 25px;
+    }
+
+    .menu-section {
+      margin-bottom: 13px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: var(--panel);
+    }
+
+    .menu-section h3 {
+      margin: 0 0 11px;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+
+    .duration-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .duration-btn {
+      min-height: 45px;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, .08);
+      color: #d7e2eb;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .duration-btn.active {
+      background: var(--amber);
+      color: #352300;
+    }
+
+    .custom-time {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-top: 9px;
+    }
+
+    .custom-time input {
+      min-width: 0;
+      height: 44px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #091622;
+      color: var(--ink);
+      font-size: 16px;
+    }
+
+    .custom-time button {
+      padding: 0 15px;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, .11);
+      font-weight: 850;
+    }
+
+    .menu-actions {
+      display: grid;
+      gap: 8px;
+    }
+
+    .menu-action {
+      min-height: 51px;
+      padding: 0 13px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .09);
+      text-align: left;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .menu-action.primary {
+      background: var(--green);
+      color: #04261b;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .menu-action.danger {
+      color: #ff9aa4;
+      background: rgba(255, 93, 108, .1);
+    }
+
+    .history-empty {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .history-item {
+      padding: 11px;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, .055);
+    }
+
+    .history-item-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .history-score {
+      color: var(--amber);
+      font-size: 16px;
+    }
+
+    .history-detail {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .storage-note {
+      margin: 14px 3px 3px;
+      color: #7890a3;
+      font-size: 11px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 50;
+      left: 50%;
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      width: max-content;
+      max-width: calc(100% - 32px);
+      padding: 11px 16px;
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 999px;
+      background: #f6fbff;
+      color: #0b1a28;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .32);
+      font-size: 13px;
+      font-weight: 850;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 16px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-height: 760px) {
+      .live { gap: 6px; padding-top: 6px; }
+      .timer-card { padding-top: 7px; padding-bottom: 8px; }
+      .timer { font-size: 47px; margin-bottom: 5px; }
+      .timer-button { min-height: 44px; }
+      .scoreboard { padding-top: 6px; padding-bottom: 6px; }
+      .score { font-size: 48px; }
+      .shooter-card { padding: 7px; }
+      .shooter-head { margin-bottom: 6px; }
+      .score-action { min-height: 62px; font-size: 16px; }
+      .score-action .symbol { font-size: 20px; }
+      .undo-row { margin-top: 5px; }
+      .undo-btn { min-height: 28px; }
+      .opposition-card { padding: 7px; }
+      .opposition-btn, .opposition-undo { min-height: 58px; }
+    }
+
+    @media (max-width: 355px) {
+      .live { padding-left: 8px; padding-right: 8px; }
+      .shooter-title { font-size: 13px; }
+      .shooter-stats { font-size: 9px; }
+      .score-action { font-size: 15px; }
+    }
+
+    @media (min-width: 700px) {
+      body { padding: 20px 0; }
+      .app {
+        min-height: calc(100dvh - 40px);
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 30px 90px rgba(0, 0, 0, .4);
+      }
+      .live { min-height: calc(100dvh - 96px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" aria-label="Netball Score Tracker">
+    <header class="topbar">
+      <div class="quarter-pill" id="quarterLabel">Q1</div>
+      <h1 class="topbar-title">Netball Score Tracker</h1>
+      <button class="icon-btn" id="menuOpen" type="button" aria-label="Open settings and saved quarters" aria-expanded="false">☰</button>
+    </header>
+
+    <section class="live" aria-label="Live match controls">
+      <section class="card timer-card" aria-label="Quarter timer">
+        <div class="timer-meta">
+          <span class="timer-dot" id="timerDot"></span>
+          <span id="timerStatus">Ready · 10 minute quarter</span>
+        </div>
+        <div class="timer" id="timerDisplay" role="timer" aria-live="off">10:00</div>
+        <div class="timer-controls">
+          <button class="timer-button primary" id="timerToggle" type="button">▶ Start</button>
+          <button class="timer-button" id="timerReset" type="button">↻ Reset</button>
+        </div>
+      </section>
+
+      <section class="card scoreboard" aria-label="Current score">
+        <div class="team">
+          <div class="team-name">Our team</div>
+          <div class="score home" id="homeScore">0</div>
+        </div>
+        <div class="score-separator" aria-hidden="true">–</div>
+        <div class="team">
+          <div class="team-name">Opposition</div>
+          <div class="score away" id="oppositionScore">0</div>
+        </div>
+      </section>
+
+      <section class="shooters" aria-label="Our shooting statistics">
+        <article class="card shooter-card">
+          <div class="shooter-head">
+            <h2 class="shooter-title">Goal Shoot</h2>
+            <div class="shooter-stats" id="gsStats">0/0 · —</div>
+          </div>
+          <div class="action-grid">
+            <button class="score-action goal-btn" type="button" data-action="gs-goal" aria-label="Add Goal Shoot goal">
+              <span class="symbol" aria-hidden="true">✓</span>
+              GOAL
+            </button>
+            <button class="score-action miss-btn" type="button" data-action="gs-miss" aria-label="Add Goal Shoot miss">
+              <span class="symbol" aria-hidden="true">×</span>
+              MISS
+            </button>
+          </div>
+          <div class="undo-row">
+            <button class="undo-btn" type="button" data-action="gs-undo-goal">↶ Undo goal</button>
+            <button class="undo-btn" type="button" data-action="gs-undo-miss">↶ Undo miss</button>
+          </div>
+        </article>
+
+        <article class="card shooter-card">
+          <div class="shooter-head">
+            <h2 class="shooter-title">Goal Attack</h2>
+            <div class="shooter-stats" id="gaStats">0/0 · —</div>
+          </div>
+          <div class="action-grid">
+            <button class="score-action goal-btn" type="button" data-action="ga-goal" aria-label="Add Goal Attack goal">
+              <span class="symbol" aria-hidden="true">✓</span>
+              GOAL
+            </button>
+            <button class="score-action miss-btn" type="button" data-action="ga-miss" aria-label="Add Goal Attack miss">
+              <span class="symbol" aria-hidden="true">×</span>
+              MISS
+            </button>
+          </div>
+          <div class="undo-row">
+            <button class="undo-btn" type="button" data-action="ga-undo-goal">↶ Undo goal</button>
+            <button class="undo-btn" type="button" data-action="ga-undo-miss">↶ Undo miss</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="card opposition-card" aria-label="Opposition scoring">
+        <button class="opposition-btn" id="oppositionAdd" type="button"><span aria-hidden="true">+</span>OPPOSITION GOAL</button>
+        <button class="opposition-undo" id="oppositionUndo" type="button">↶<br>Undo</button>
+      </section>
+    </section>
+  </main>
+
+  <div class="backdrop" id="backdrop"></div>
+  <aside class="drawer" id="drawer" aria-label="Game menu" aria-hidden="true">
+    <div class="drawer-head">
+      <h2 class="drawer-title">Game menu</h2>
+      <button class="drawer-close" id="menuClose" type="button" aria-label="Close menu">×</button>
+    </div>
+
+    <section class="menu-section">
+      <h3>Quarter length</h3>
+      <div class="duration-grid">
+        <button class="duration-btn active" type="button" data-minutes="10">10 min</button>
+        <button class="duration-btn" type="button" data-minutes="12">12 min</button>
+        <button class="duration-btn" type="button" data-minutes="15">15 min</button>
+      </div>
+      <div class="custom-time">
+        <input id="customMinutes" type="number" min="1" max="60" inputmode="numeric" placeholder="Custom minutes" aria-label="Custom quarter length in minutes">
+        <button id="customApply" type="button">Set</button>
+      </div>
+    </section>
+
+    <section class="menu-section">
+      <h3>Quarter controls</h3>
+      <div class="menu-actions">
+        <button class="menu-action primary" id="saveQuarter" type="button">Save quarter &amp; continue</button>
+        <button class="menu-action" id="quickReset" type="button">↻ Quick reset current quarter</button>
+        <button class="menu-action" id="addMinute" type="button">＋ Add 1 minute to timer</button>
+      </div>
+    </section>
+
+    <section class="menu-section">
+      <h3>Saved quarters</h3>
+      <div id="history">
+        <p class="history-empty">No quarters saved yet. Save a quarter to keep its score and shooting statistics here.</p>
+      </div>
+    </section>
+
+    <section class="menu-section">
+      <h3>Game</h3>
+      <div class="menu-actions">
+        <button class="menu-action danger" id="newGame" type="button">Start a completely new game</button>
+      </div>
+    </section>
+
+    <p class="storage-note">Game progress is saved automatically on this device.</p>
+  </aside>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "netball-score-tracker-v3";
+      const defaults = {
+        quarter: 1,
+        durationSeconds: 600,
+        remainingSeconds: 600,
+        isRunning: false,
+        lastStartedAt: null,
+        gsGoals: 0,
+        gsMisses: 0,
+        gaGoals: 0,
+        gaMisses: 0,
+        opposition: 0,
+        history: []
+      };
+
+      let state = loadState();
+      let intervalId = null;
+      let toastTimer = null;
+
+      const $ = (selector) => document.querySelector(selector);
+      const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+      const elements = {
+        quarterLabel: $("#quarterLabel"),
+        timerDisplay: $("#timerDisplay"),
+        timerStatus: $("#timerStatus"),
+        timerDot: $("#timerDot"),
+        timerToggle: $("#timerToggle"),
+        homeScore: $("#homeScore"),
+        oppositionScore: $("#oppositionScore"),
+        gsStats: $("#gsStats"),
+        gaStats: $("#gaStats"),
+        drawer: $("#drawer"),
+        backdrop: $("#backdrop"),
+        menuOpen: $("#menuOpen"),
+        history: $("#history"),
+        toast: $("#toast")
+      };
+
+      function loadState() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (!saved || typeof saved !== "object") return { ...defaults };
+          const merged = { ...defaults, ...saved };
+          merged.history = Array.isArray(saved.history) ? saved.history : [];
+          if (merged.isRunning && merged.lastStartedAt) {
+            const elapsed = Math.floor((Date.now() - merged.lastStartedAt) / 1000);
+            merged.remainingSeconds = Math.max(0, merged.remainingSeconds - elapsed);
+            merged.lastStartedAt = merged.remainingSeconds > 0 ? Date.now() : null;
+            merged.isRunning = merged.remainingSeconds > 0;
+          }
+          return merged;
+        } catch {
+          return { ...defaults };
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch {
+          // The tracker remains usable if browser storage is unavailable.
+        }
+      }
+
+      function formatTime(totalSeconds) {
+        const seconds = Math.max(0, Math.floor(totalSeconds));
+        const minutes = Math.floor(seconds / 60);
+        const remainder = seconds % 60;
+        return `${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+      }
+
+      function accuracy(goals, misses) {
+        const attempts = goals + misses;
+        return attempts ? `${Math.round((goals / attempts) * 100)}%` : "—";
+      }
+
+      function durationLabel(seconds) {
+        const minutes = seconds / 60;
+        return Number.isInteger(minutes) ? `${minutes} minute quarter` : "custom quarter";
+      }
+
+      function render() {
+        const home = state.gsGoals + state.gaGoals;
+        elements.quarterLabel.textContent = `Q${state.quarter}`;
+        elements.timerDisplay.textContent = formatTime(state.remainingSeconds);
+        elements.homeScore.textContent = home;
+        elements.oppositionScore.textContent = state.opposition;
+        elements.gsStats.textContent = `${state.gsGoals}/${state.gsGoals + state.gsMisses} · ${accuracy(state.gsGoals, state.gsMisses)}`;
+        elements.gaStats.textContent = `${state.gaGoals}/${state.gaGoals + state.gaMisses} · ${accuracy(state.gaGoals, state.gaMisses)}`;
+
+        if (state.remainingSeconds === 0) {
+          elements.timerStatus.textContent = "Quarter finished";
+        } else if (state.isRunning) {
+          elements.timerStatus.textContent = "Timer running";
+        } else if (state.remainingSeconds < state.durationSeconds) {
+          elements.timerStatus.textContent = "Timer paused";
+        } else {
+          elements.timerStatus.textContent = `Ready · ${durationLabel(state.durationSeconds)}`;
+        }
+
+        elements.timerDot.classList.toggle("running", state.isRunning);
+        elements.timerToggle.textContent = state.isRunning ? "Ⅱ Pause" : "▶ Start";
+        elements.timerToggle.classList.toggle("paused", !state.isRunning && state.remainingSeconds < state.durationSeconds && state.remainingSeconds > 0);
+        elements.timerToggle.disabled = state.remainingSeconds === 0;
+        elements.timerToggle.style.opacity = state.remainingSeconds === 0 ? ".55" : "1";
+
+        $$(".duration-btn").forEach((button) => {
+          button.classList.toggle("active", Number(button.dataset.minutes) * 60 === state.durationSeconds);
+        });
+
+        renderHistory();
+        saveState();
+      }
+
+      function renderHistory() {
+        if (!state.history.length) {
+          elements.history.innerHTML = '<p class="history-empty">No quarters saved yet. Save a quarter to keep its score and shooting statistics here.</p>';
+          return;
+        }
+
+        const safe = (value) => String(value).replace(/[&<>"']/g, (character) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        })[character]);
+
+        elements.history.innerHTML = `<div class="history-list">${state.history.map((item) => `
+          <div class="history-item">
+            <div class="history-item-top">
+              <span>Quarter ${safe(item.quarter)}</span>
+              <span class="history-score">${safe(item.home)} – ${safe(item.opposition)}</span>
+            </div>
+            <div class="history-detail">
+              GS ${safe(item.gsGoals)}/${safe(item.gsGoals + item.gsMisses)} (${safe(accuracy(item.gsGoals, item.gsMisses))})
+              · GA ${safe(item.gaGoals)}/${safe(item.gaGoals + item.gaMisses)} (${safe(accuracy(item.gaGoals, item.gaMisses))})
+            </div>
+          </div>
+        `).join("")}</div>`;
+      }
+
+      function stopTimer() {
+        state.isRunning = false;
+        state.lastStartedAt = null;
+        if (intervalId) window.clearInterval(intervalId);
+        intervalId = null;
+      }
+
+      function syncTimer() {
+        if (!state.isRunning || !state.lastStartedAt) return;
+        const elapsed = Math.floor((Date.now() - state.lastStartedAt) / 1000);
+        if (elapsed < 1) return;
+        state.remainingSeconds = Math.max(0, state.remainingSeconds - elapsed);
+        state.lastStartedAt = Date.now();
+
+        if (state.remainingSeconds === 0) {
+          stopTimer();
+          if ("vibrate" in navigator) navigator.vibrate([250, 120, 250]);
+          showToast("Quarter finished");
+        }
+        render();
+      }
+
+      function startTimer() {
+        if (state.remainingSeconds <= 0) return;
+        state.isRunning = true;
+        state.lastStartedAt = Date.now();
+        if (intervalId) window.clearInterval(intervalId);
+        intervalId = window.setInterval(syncTimer, 250);
+      }
+
+      function toggleTimer() {
+        if (state.isRunning) {
+          syncTimer();
+          stopTimer();
+        } else {
+          startTimer();
+        }
+        render();
+      }
+
+      function resetCurrentQuarter(showMessage = true) {
+        stopTimer();
+        state.remainingSeconds = state.durationSeconds;
+        state.gsGoals = 0;
+        state.gsMisses = 0;
+        state.gaGoals = 0;
+        state.gaMisses = 0;
+        state.opposition = 0;
+        render();
+        if (showMessage) showToast(`Quarter ${state.quarter} reset`);
+      }
+
+      function setDuration(minutes) {
+        const value = Number(minutes);
+        if (!Number.isFinite(value) || value < 1 || value > 60) {
+          showToast("Choose a time from 1 to 60 minutes");
+          return;
+        }
+        stopTimer();
+        state.durationSeconds = Math.round(value * 60);
+        state.remainingSeconds = state.durationSeconds;
+        render();
+        showToast(`Quarter timer set to ${value} minute${value === 1 ? "" : "s"}`);
+      }
+
+      function adjustScore(key, amount) {
+        state[key] = Math.max(0, state[key] + amount);
+        render();
+      }
+
+      function saveQuarter() {
+        stopTimer();
+        const item = {
+          quarter: state.quarter,
+          home: state.gsGoals + state.gaGoals,
+          opposition: state.opposition,
+          gsGoals: state.gsGoals,
+          gsMisses: state.gsMisses,
+          gaGoals: state.gaGoals,
+          gaMisses: state.gaMisses,
+          savedAt: new Date().toISOString()
+        };
+        const existingIndex = state.history.findIndex((entry) => entry.quarter === state.quarter);
+        if (existingIndex >= 0) state.history[existingIndex] = item;
+        else state.history.push(item);
+        state.history.sort((a, b) => a.quarter - b.quarter);
+
+        const savedQuarter = state.quarter;
+        state.quarter += 1;
+        resetCurrentQuarter(false);
+        closeMenu();
+        showToast(`Quarter ${savedQuarter} saved · Quarter ${state.quarter} ready`);
+      }
+
+      function newGame() {
+        if (!window.confirm("Start a new game? This will clear all scores and saved quarters on this device.")) return;
+        stopTimer();
+        const duration = state.durationSeconds;
+        state = { ...defaults, durationSeconds: duration, remainingSeconds: duration, history: [] };
+        render();
+        closeMenu();
+        showToast("New game ready");
+      }
+
+      function openMenu() {
+        elements.drawer.classList.add("open");
+        elements.backdrop.classList.add("open");
+        elements.drawer.setAttribute("aria-hidden", "false");
+        elements.menuOpen.setAttribute("aria-expanded", "true");
+        document.body.style.overflow = "hidden";
+        $("#menuClose").focus();
+      }
+
+      function closeMenu() {
+        elements.drawer.classList.remove("open");
+        elements.backdrop.classList.remove("open");
+        elements.drawer.setAttribute("aria-hidden", "true");
+        elements.menuOpen.setAttribute("aria-expanded", "false");
+        document.body.style.overflow = "";
+      }
+
+      function showToast(message) {
+        window.clearTimeout(toastTimer);
+        elements.toast.textContent = message;
+        elements.toast.classList.add("show");
+        toastTimer = window.setTimeout(() => elements.toast.classList.remove("show"), 2200);
+      }
+
+      const scoreActions = {
+        "gs-goal": ["gsGoals", 1],
+        "gs-miss": ["gsMisses", 1],
+        "ga-goal": ["gaGoals", 1],
+        "ga-miss": ["gaMisses", 1],
+        "gs-undo-goal": ["gsGoals", -1],
+        "gs-undo-miss": ["gsMisses", -1],
+        "ga-undo-goal": ["gaGoals", -1],
+        "ga-undo-miss": ["gaMisses", -1]
+      };
+
+      $$("[data-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const [key, amount] = scoreActions[button.dataset.action];
+          adjustScore(key, amount);
+        });
+      });
+
+      elements.timerToggle.addEventListener("click", toggleTimer);
+      $("#timerReset").addEventListener("click", () => {
+        stopTimer();
+        state.remainingSeconds = state.durationSeconds;
+        render();
+        showToast("Timer reset");
+      });
+      $("#oppositionAdd").addEventListener("click", () => adjustScore("opposition", 1));
+      $("#oppositionUndo").addEventListener("click", () => adjustScore("opposition", -1));
+
+      elements.menuOpen.addEventListener("click", openMenu);
+      $("#menuClose").addEventListener("click", closeMenu);
+      elements.backdrop.addEventListener("click", closeMenu);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeMenu();
+      });
+
+      $$(".duration-btn").forEach((button) => {
+        button.addEventListener("click", () => setDuration(Number(button.dataset.minutes)));
+      });
+      $("#customApply").addEventListener("click", () => setDuration($("#customMinutes").value));
+      $("#customMinutes").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") setDuration(event.currentTarget.value);
+      });
+      $("#saveQuarter").addEventListener("click", saveQuarter);
+      $("#quickReset").addEventListener("click", () => {
+        resetCurrentQuarter();
+        closeMenu();
+      });
+      $("#addMinute").addEventListener("click", () => {
+        state.remainingSeconds += 60;
+        render();
+        showToast("1 minute added");
+      });
+      $("#newGame").addEventListener("click", newGame);
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+          syncTimer();
+          render();
+        }
+      });
+
+      if (state.isRunning) startTimer();
+      render();
+    })();
+  </script>
+</body>
+</html>
