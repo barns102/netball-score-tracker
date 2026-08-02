@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Netball Score Tracker</title>
   <style>
-    :root{color-scheme:dark;--bg:#07131f;--panel:#102131;--panel2:#14293c;--text:#f8fbff;--muted:#9fb0c0;--line:rgba(255,255,255,.11);--green:#19c37d;--red:#ff5d6c;--blue:#60a5fa;--amber:#ffc857;--purple:#c4a7ff;font-family:Inter,ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    :root{color-scheme:dark;--bg:#07131f;--panel:#102131;--panel2:#14293c;--text:#f8fbff;--muted:#9fb0c0;--line:rgba(255,255,255,.11);--green:#19c37d;--red:#ff5d6c;--blue:#60a5fa;--amber:#ffc857;font-family:Inter,ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
     *{box-sizing:border-box}
     html,body{width:100%;min-height:100%;margin:0;background:var(--bg);color:var(--text);overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
     body{min-height:100dvh;overflow-x:hidden}
@@ -15,976 +15,238 @@
     button{border:0;color:inherit;cursor:pointer;touch-action:manipulation;user-select:none}
     button:active{transform:scale(.975)}
     button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
-    .app{width:min(100%,520px);min-height:100dvh;margin:auto;padding-bottom:calc(64px + env(safe-area-inset-bottom));background:radial-gradient(circle at 50% -10%,rgba(96,165,250,.18),transparent 32%),var(--bg)}
-    .topbar{position:sticky;top:0;z-index:9;height:calc(54px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 12px 0;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;border-bottom:1px solid var(--line);background:rgba(7,19,31,.94);backdrop-filter:blur(16px)}
-    .topbar h1{margin:0;text-align:center;font-size:16px;font-weight:900}
-    .quarter-pill{min-width:38px;height:29px;padding:0 9px;display:grid;place-items:center;justify-self:start;border-radius:999px;background:rgba(255,200,87,.12);color:var(--amber);font-size:13px;font-weight:950}
-    .icon-btn{width:44px;height:44px;display:grid;place-items:center;justify-self:end;border-radius:14px;background:rgba(255,255,255,.08);font-size:23px}
+    .app{width:min(100%,520px);min-height:100dvh;margin:auto;padding-bottom:calc(56px + env(safe-area-inset-bottom));background:radial-gradient(circle at 50% -10%,rgba(96,165,250,.18),transparent 30%),var(--bg)}
+    .topbar{position:sticky;top:0;z-index:9;height:calc(48px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 9px 0;display:grid;grid-template-columns:40px 1fr 40px;align-items:center;border-bottom:1px solid var(--line);background:rgba(7,19,31,.95);backdrop-filter:blur(16px)}
+    .topbar h1{margin:0;text-align:center;font-size:15px;font-weight:900}
+    .quarter-pill{min-width:35px;height:26px;padding:0 8px;display:grid;place-items:center;justify-self:start;border-radius:999px;background:rgba(255,200,87,.12);color:var(--amber);font-size:12px;font-weight:950}
+    .icon-btn{width:40px;height:40px;display:grid;place-items:center;justify-self:end;border-radius:12px;background:rgba(255,255,255,.08);font-size:20px}
     .screen[hidden]{display:none!important}
-    .live{min-height:calc(100dvh - 118px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:8px 10px 10px;display:flex;flex-direction:column;gap:7px}
-    .card{border:1px solid var(--line);border-radius:19px;background:linear-gradient(145deg,var(--panel2),var(--panel));box-shadow:0 12px 30px rgba(0,0,0,.22)}
-    .timer-card{padding:7px 9px 9px;text-align:center}
-    .timer-meta{min-height:16px;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--muted);font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.09em}
-    .timer-dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+    .score-screen{min-height:calc(100dvh - 104px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:5px 8px 7px;display:flex;flex-direction:column;gap:5px}
+    .card{border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,var(--panel2),var(--panel));box-shadow:0 8px 22px rgba(0,0,0,.19)}
+    .label{color:var(--muted);font-size:8px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+
+    .timer-card{min-height:55px;padding:5px 7px;display:grid;grid-template-columns:minmax(0,1fr) minmax(148px,1.08fr);align-items:center;gap:7px}
+    .timer-left{text-align:center}
+    .timer-meta{min-height:12px;display:flex;align-items:center;justify-content:center;gap:5px;color:var(--muted);font-size:8px;font-weight:850;text-transform:uppercase;letter-spacing:.07em}
+    .timer-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
     .timer-dot.running{background:var(--green)}
-    .timer{margin:0 0 5px;font-size:clamp(48px,15vw,68px);font-weight:950;line-height:.98;letter-spacing:-.055em;font-variant-numeric:tabular-nums}
-    .timer-controls{display:grid;grid-template-columns:2.15fr 1fr;gap:7px}
-    .timer-btn{min-height:45px;border-radius:14px;background:rgba(255,255,255,.09);font-size:14px;font-weight:900}
-    .timer-btn.primary{background:var(--green);color:#03291d;font-size:17px}
+    .timer{font-size:clamp(32px,9.2vw,40px);font-weight:950;line-height:.95;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+    .timer-controls{display:grid;grid-template-columns:1.45fr 1fr;gap:5px}
+    .timer-btn{min-height:36px;padding:2px 5px;border-radius:10px;background:rgba(255,255,255,.09);font-size:11px;font-weight:900}
+    .timer-btn.primary{background:var(--green);color:#03291d;font-size:13px}
     .timer-btn.primary.paused{background:var(--amber);color:#352300}
-    .label{color:var(--muted);font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
-    .match{padding:7px 13px 8px;background:linear-gradient(120deg,rgba(25,195,125,.08),transparent 40%),linear-gradient(240deg,rgba(96,165,250,.08),transparent 40%),var(--panel)}
+
+    .match{padding:4px 11px 5px;background:linear-gradient(120deg,rgba(25,195,125,.08),transparent 40%),linear-gradient(240deg,rgba(96,165,250,.08),transparent 40%),var(--panel)}
     .match>.label{text-align:center}
-    .match-grid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+    .match-grid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
     .team{text-align:center}
-    .team-name{color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
-    .score{font-size:clamp(45px,13vw,60px);font-weight:950;line-height:1;font-variant-numeric:tabular-nums}
-    .score.home{color:#64e6af}
-    .score.away{color:#8bbcff}
-    .dash{color:rgba(255,255,255,.28);font-size:23px;font-weight:900}
-    .shooting{padding:7px 9px 8px}
-    .shooting>.label{margin:0 4px 5px;color:#d7e2eb}
-    .shoot-grid{display:grid;grid-template-columns:minmax(82px,1.3fr) 1fr 1fr 1.12fr;gap:4px 6px;align-items:center}
-    .col{color:var(--muted);font-size:9px;font-weight:900;text-align:center;text-transform:uppercase}
-    .shooter-name{padding-left:3px;font-size:13px;font-weight:900;white-space:nowrap}
-    .stat{min-height:34px;display:grid;place-items:center;border-radius:11px;font-size:24px;font-weight:950;font-variant-numeric:tabular-nums}
+    .team-name{color:var(--muted);font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.07em}
+    .score{font-size:clamp(31px,8.8vw,39px);font-weight:950;line-height:.93;font-variant-numeric:tabular-nums}
+    .score.home{color:#64e6af}.score.away{color:#8bbcff}
+    .dash{color:rgba(255,255,255,.28);font-size:18px;font-weight:900}
+
+    .shooting{padding:5px 7px 6px}
+    .shooting>.label{margin:0 3px 3px;color:#d7e2eb}
+    .shoot-grid{display:grid;grid-template-columns:minmax(73px,1.25fr) 1fr 1fr 1.08fr;gap:3px 5px;align-items:center}
+    .col{color:var(--muted);font-size:8px;font-weight:900;text-align:center;text-transform:uppercase}
+    .shooter-name{padding-left:2px;font-size:11px;font-weight:900;white-space:nowrap}
+    .stat{min-height:27px;display:grid;place-items:center;border-radius:8px;font-size:19px;font-weight:950;font-variant-numeric:tabular-nums}
     .stat.goal{color:#74eab7;background:rgba(25,195,125,.13);border:1px solid rgba(25,195,125,.2)}
     .stat.miss{color:#ff9aa4;background:rgba(255,93,108,.12);border:1px solid rgba(255,93,108,.19)}
-    .stat.pct{color:#ffd778;background:rgba(255,200,87,.11);border:1px solid rgba(255,200,87,.18);font-size:19px}
-    .totals{margin-top:6px;padding-top:6px;display:grid;grid-template-columns:minmax(82px,1.3fr) repeat(3,1fr);gap:6px;border-top:1px solid var(--line)}
-    .totals-title{padding-left:3px;display:flex;align-items:center;font-size:12px;font-weight:900}
-    .total{min-height:35px;padding:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(96,165,250,.18);border-radius:11px;background:rgba(96,165,250,.1)}
-    .total span{color:var(--muted);font-size:9px;font-weight:900;text-transform:uppercase;white-space:nowrap}
-    .total strong{color:#a8ceff;font-size:21px;font-weight:950}
-    .shooters{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-    .shooter-card{min-width:0;padding:7px}
-    .shooter-card h2{margin:0 2px 6px;font-size:13px}
-    .action-grid,.undo-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-    .score-btn{min-height:63px;padding:5px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:15px;font-size:16px;font-weight:950}
-    .score-btn span{font-size:21px;line-height:1}
+    .stat.pct{color:#ffd778;background:rgba(255,200,87,.11);border:1px solid rgba(255,200,87,.18);font-size:15px}
+    .totals{margin-top:4px;padding-top:4px;display:grid;grid-template-columns:minmax(73px,1.25fr) repeat(3,1fr);gap:5px;border-top:1px solid var(--line)}
+    .totals-title{padding-left:2px;display:flex;align-items:center;font-size:10px;font-weight:900}
+    .total{min-height:29px;padding:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(96,165,250,.18);border-radius:8px;background:rgba(96,165,250,.1)}
+    .total span{color:var(--muted);font-size:7px;font-weight:900;text-transform:uppercase;white-space:nowrap}
+    .total strong{color:#a8ceff;font-size:17px;font-weight:950}
+
+    .shooters{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+    .shooter-card{min-width:0;padding:5px}
+    .shooter-card h2{margin:0 2px 4px;font-size:11px}
+    .action-grid,.undo-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+    .score-btn{min-height:48px;padding:3px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:11px;font-size:12px;font-weight:950}
+    .score-btn span{font-size:17px;line-height:.9}
     .goal-btn{background:linear-gradient(150deg,#29d994,var(--green));color:#03291d}
     .miss-btn{background:linear-gradient(150deg,#ff7380,var(--red));color:#38070d}
-    .undo-grid{margin-top:5px}
-    .undo{min-height:28px;padding:2px;border-radius:9px;background:rgba(255,255,255,.07);color:#c4d0da;font-size:9px;font-weight:850}
-    .opp{padding:7px;display:grid;grid-template-columns:1fr auto;gap:7px}
-    .opp-add{min-height:57px;border-radius:15px;background:linear-gradient(145deg,#7cb9ff,var(--blue));color:#061c36;font-size:17px;font-weight:950}
-    .opp-add span{margin-right:6px;font-size:23px}
-    .opp-undo{width:63px;min-height:57px;border-radius:15px;background:rgba(255,255,255,.08);color:#c4d0da;font-size:10px;font-weight:850}
+    .undo-grid{margin-top:3px}
+    .undo{min-height:23px;padding:1px;border-radius:7px;background:rgba(255,255,255,.07);color:#c4d0da;font-size:8px;font-weight:850}
+    .opp{padding:5px;display:grid;grid-template-columns:1fr 53px;gap:5px}
+    .opp-add{min-height:42px;border-radius:11px;background:linear-gradient(145deg,#7cb9ff,var(--blue));color:#061c36;font-size:13px;font-weight:950}
+    .opp-add span{margin-right:5px;font-size:18px}
+    .opp-undo{min-height:42px;border-radius:11px;background:rgba(255,255,255,.08);color:#c4d0da;font-size:9px;font-weight:850}
 
-    .stats-screen{padding:10px 10px 18px}
-    .stats-intro{margin-bottom:9px;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .stats-intro h2{margin:0 0 2px;font-size:16px}
-    .stats-intro p{margin:0;color:var(--muted);font-size:11px;line-height:1.35}
-    .stats-quarter{flex:0 0 auto;padding:7px 10px;border-radius:999px;background:rgba(255,200,87,.12);color:var(--amber);font-size:12px;font-weight:950}
-    .stats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:8px}
-    .stat-player-card{min-width:0;padding:8px}
+    .quick-rebounds{padding:6px 7px}
+    .quick-rebound-title{margin:0 2px 4px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .quick-rebound-title span{color:var(--muted);font-size:8px;font-weight:800}
+    .quick-rebound-grid{display:grid;gap:3px}
+    .quick-rebound-header,.quick-rebound-row{display:grid;grid-template-columns:27px minmax(0,1fr) minmax(0,1fr) 36px;align-items:center;gap:4px}
+    .quick-rebound-header{padding:0 2px;color:var(--muted);font-size:7px;font-weight:900;text-align:center;text-transform:uppercase}
+    .quick-rebound-position{color:#a8ceff;font-size:11px;font-weight:950;text-align:center}
+    .quick-rebound-control{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 23px;gap:3px}
+    .quick-rebound-add,.quick-rebound-undo{min-height:30px;border-radius:8px;font-weight:950}
+    .quick-rebound-add{padding:1px 3px;background:rgba(25,195,125,.15);color:#8cf0c4;font-size:8px}
+    .quick-rebound-add.missed{background:rgba(255,200,87,.13);color:#ffdc88}
+    .quick-rebound-add strong{margin-left:2px;font-size:14px}
+    .quick-rebound-undo{padding:0;background:rgba(255,255,255,.065);color:#aebdca;font-size:11px}
+    .quick-rebound-pct{color:#ffdc88;font-size:10px;font-weight:950;text-align:center}
+
+    .stats-screen{min-height:calc(100dvh - 104px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:7px 8px 10px}
+    .stats-intro{margin-bottom:6px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .stats-intro h2{margin:0 0 1px;font-size:14px}
+    .stats-intro p{margin:0;color:var(--muted);font-size:9px;line-height:1.25}
+    .stats-quarter{flex:0 0 auto;padding:5px 8px;border-radius:999px;background:rgba(255,200,87,.12);color:var(--amber);font-size:10px;font-weight:950}
+    .stats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:6px}
+    .stat-player-card{min-width:0;padding:7px}
     .stat-player-card:last-child{grid-column:1/-1}
-    .player-head{margin-bottom:7px}
-    .position-badge{width:100%;height:35px;display:grid;place-items:center;border-radius:11px;background:rgba(96,165,250,.15);color:#a8ceff;font-size:15px;font-weight:950}
-    .event-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+    .player-head{margin-bottom:5px}
+    .position-badge{width:100%;height:30px;display:grid;place-items:center;border-radius:9px;background:rgba(96,165,250,.15);color:#a8ceff;font-size:13px;font-weight:950}
+    .event-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
     .event-control{min-width:0}
-    .event-add{width:100%;min-height:54px;padding:5px;border-radius:12px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px;text-align:left;font-size:10px;font-weight:950}
-    .event-add strong{font-size:22px;font-weight:950;font-variant-numeric:tabular-nums}
+    .event-add{width:100%;min-height:48px;padding:4px;border-radius:10px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:3px;text-align:left;font-size:9px;font-weight:950}
+    .event-add strong{font-size:20px;font-weight:950;font-variant-numeric:tabular-nums}
     .event-add.intercept{background:linear-gradient(145deg,rgba(96,165,250,.28),rgba(96,165,250,.14));color:#b8d8ff;border:1px solid rgba(96,165,250,.25)}
     .event-add.turnover{background:linear-gradient(145deg,rgba(255,93,108,.24),rgba(255,93,108,.12));color:#ffb2ba;border:1px solid rgba(255,93,108,.22)}
-    .event-add.rebound-won{background:linear-gradient(145deg,rgba(25,195,125,.27),rgba(25,195,125,.12));color:#8cf0c4;border:1px solid rgba(25,195,125,.24)}
-    .event-add.rebound-missed{background:linear-gradient(145deg,rgba(255,200,87,.23),rgba(255,200,87,.11));color:#ffdc88;border:1px solid rgba(255,200,87,.22)}
-    .event-undo{width:100%;min-height:25px;margin-top:4px;padding:2px;border-radius:8px;background:rgba(255,255,255,.065);color:#aebdca;font-size:8px;font-weight:850}
-    .rebound-head{margin:8px 1px 5px;padding-top:7px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);color:var(--muted);font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
-    .rebound-pct{padding:3px 7px;border-radius:999px;background:rgba(255,200,87,.12);color:#ffdc88;font-size:11px;font-weight:950;letter-spacing:0;text-transform:none}
-    .quick-rebounds{padding:8px 9px}
-    .quick-rebound-title{margin:0 2px 7px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .quick-rebound-title span{color:var(--muted);font-size:9px;font-weight:800}
-    .quick-rebound-grid{display:grid;gap:5px}
-    .quick-rebound-header,.quick-rebound-row{display:grid;grid-template-columns:30px minmax(0,1fr) minmax(0,1fr) 39px;align-items:center;gap:5px}
-    .quick-rebound-header{padding:0 2px;color:var(--muted);font-size:8px;font-weight:900;text-align:center;text-transform:uppercase}
-    .quick-rebound-position{color:#a8ceff;font-size:12px;font-weight:950;text-align:center}
-    .quick-rebound-control{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 25px;gap:3px}
-    .quick-rebound-add,.quick-rebound-undo{min-height:34px;border-radius:9px;font-weight:950}
-    .quick-rebound-add{padding:2px 4px;background:rgba(25,195,125,.15);color:#8cf0c4;font-size:9px}
-    .quick-rebound-add.missed{background:rgba(255,200,87,.13);color:#ffdc88}
-    .quick-rebound-add strong{margin-left:3px;font-size:15px}
-    .quick-rebound-undo{padding:0;background:rgba(255,255,255,.065);color:#aebdca;font-size:12px}
-    .quick-rebound-pct{color:#ffdc88;font-size:11px;font-weight:950;text-align:center}
-    .bottom-tabs{position:fixed;z-index:15;left:50%;bottom:0;width:min(100%,520px);height:calc(64px + env(safe-area-inset-bottom));padding:7px 9px calc(7px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr;gap:8px;border-top:1px solid var(--line);background:rgba(7,19,31,.96);backdrop-filter:blur(18px);transform:translateX(-50%)}
-    .tab-btn{min-height:49px;border-radius:14px;background:transparent;color:var(--muted);font-size:13px;font-weight:900}
+    .event-undo{width:100%;min-height:22px;margin-top:3px;padding:1px;border-radius:7px;background:rgba(255,255,255,.065);color:#aebdca;font-size:7px;font-weight:850}
+
+    .bottom-tabs{position:fixed;z-index:15;left:50%;bottom:0;width:min(100%,520px);height:calc(56px + env(safe-area-inset-bottom));padding:5px 8px calc(5px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr;gap:7px;border-top:1px solid var(--line);background:rgba(7,19,31,.97);backdrop-filter:blur(18px);transform:translateX(-50%)}
+    .tab-btn{min-height:45px;border-radius:12px;background:transparent;color:var(--muted);font-size:12px;font-weight:900}
     .tab-btn[aria-selected="true"]{background:rgba(96,165,250,.16);color:#d7e9ff}
 
     .backdrop{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.58);opacity:0;pointer-events:none;transition:.2s}
     .backdrop.open{opacity:1;pointer-events:auto}
-    .drawer{position:fixed;z-index:30;top:0;right:0;bottom:0;width:min(91vw,410px);padding:calc(15px + env(safe-area-inset-top)) 15px calc(80px + env(safe-area-inset-bottom));overflow-y:auto;background:#0b1a28;box-shadow:-18px 0 50px rgba(0,0,0,.42);transform:translateX(105%);transition:.25s}
+    .drawer{position:fixed;z-index:30;top:0;right:0;bottom:0;width:min(91vw,410px);padding:calc(15px + env(safe-area-inset-top)) 15px calc(70px + env(safe-area-inset-bottom));overflow-y:auto;background:#0b1a28;box-shadow:-18px 0 50px rgba(0,0,0,.42);transform:translateX(105%);transition:.25s}
     .drawer.open{transform:none}
-    .drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
-    .drawer-head h2{margin:0;font-size:23px}
+    .drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}.drawer-head h2{margin:0;font-size:23px}
     .close{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.08);font-size:25px}
     .menu-section{margin-bottom:12px;padding:14px;border:1px solid var(--line);border-radius:18px;background:var(--panel)}
-    .menu-section h3{margin:0 0 10px;font-size:14px}
-    .duration-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-    .duration{min-height:44px;border-radius:12px;background:rgba(255,255,255,.08);font-size:13px;font-weight:850}
-    .duration.active{background:var(--amber);color:#352300}
-    .custom{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:8px}
-    .custom input{min-width:0;height:44px;padding:0 11px;border:1px solid var(--line);border-radius:12px;background:#091622;color:var(--text)}
-    .custom button{padding:0 15px;border-radius:12px;background:rgba(255,255,255,.11);font-weight:850}
-    .menu-actions{display:grid;gap:8px}
-    .menu-action{width:100%;min-height:50px;padding:0 12px;border-radius:13px;background:rgba(255,255,255,.09);text-align:left;font-size:14px;font-weight:850}
-    .menu-action.primary{background:var(--green);color:#04261b;text-align:center;font-size:16px}
-    .menu-action.finish{background:var(--amber);color:#352300;text-align:center;font-size:16px}
-    .menu-action.danger{color:#ff9aa4;background:rgba(255,93,108,.1)}
-    .empty{margin:0;color:var(--muted);font-size:13px;line-height:1.45}
-    .list{display:grid;gap:8px}
-    .item{padding:10px;border-radius:12px;background:rgba(255,255,255,.055)}
-    .item-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;font-weight:900}
-    .item-score{color:var(--amber);font-size:16px}
-    .item-detail{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.45}
+    .menu-section h3{margin:0 0 10px;font-size:14px}.duration-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+    .duration{min-height:44px;border-radius:12px;background:rgba(255,255,255,.08);font-size:13px;font-weight:850}.duration.active{background:var(--amber);color:#352300}
+    .custom{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:8px}.custom input{min-width:0;height:44px;padding:0 11px;border:1px solid var(--line);border-radius:12px;background:#091622;color:var(--text)}.custom button{padding:0 15px;border-radius:12px;background:rgba(255,255,255,.11);font-weight:850}
+    .menu-actions{display:grid;gap:8px}.menu-action{width:100%;min-height:50px;padding:0 12px;border-radius:13px;background:rgba(255,255,255,.09);text-align:left;font-size:14px;font-weight:850}.menu-action.primary{background:var(--green);color:#04261b;text-align:center;font-size:16px}.menu-action.finish{background:var(--amber);color:#352300;text-align:center;font-size:16px}.menu-action.danger{color:#ff9aa4;background:rgba(255,93,108,.1)}
+    .empty{margin:0;color:var(--muted);font-size:13px;line-height:1.45}.list{display:grid;gap:8px}.item{padding:10px;border-radius:12px;background:rgba(255,255,255,.055)}
+    .item-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;font-weight:900}.item-score{color:var(--amber);font-size:16px}.item-detail{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.45}
     .quarter-edit{width:100%;min-height:36px;margin-top:8px;border-radius:10px;background:rgba(255,200,87,.12);color:#ffd778;font-size:11px;font-weight:900}
-    .game-actions{display:grid;grid-template-columns:1fr 1fr 44px;gap:6px;margin-top:8px}
-    .view-report,.edit-game,.delete-game{min-height:39px;border-radius:11px;font-size:11px;font-weight:900}
-    .view-report{background:rgba(96,165,250,.14);color:#a8ceff}
-    .edit-game{background:rgba(255,200,87,.12);color:#ffd778}
-    .delete-game{background:rgba(255,93,108,.12);color:#ff9aa4;font-size:17px}
-    .storage-note{margin:13px 3px;color:#7890a3;font-size:11px;text-align:center}
-    .modal-bg{position:fixed;inset:0;z-index:40;padding:calc(14px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);opacity:0;pointer-events:none;transition:.2s}
-    .modal-bg.open{opacity:1;pointer-events:auto}
+    .game-actions{display:grid;grid-template-columns:1fr 1fr 44px;gap:6px;margin-top:8px}.view-report,.edit-game,.delete-game{min-height:39px;border-radius:11px;font-size:11px;font-weight:900}.view-report{background:rgba(96,165,250,.14);color:#a8ceff}.edit-game{background:rgba(255,200,87,.12);color:#ffd778}.delete-game{background:rgba(255,93,108,.12);color:#ff9aa4;font-size:17px}.storage-note{margin:13px 3px;color:#7890a3;font-size:11px;text-align:center}
+
+    .modal-bg{position:fixed;inset:0;z-index:40;padding:calc(14px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);opacity:0;pointer-events:none;transition:.2s}.modal-bg.open{opacity:1;pointer-events:auto}
     .modal{width:min(100%,480px);max-height:100%;padding:15px;overflow-y:auto;border:1px solid var(--line);border-radius:22px;background:#0d1e2d;box-shadow:0 24px 70px rgba(0,0,0,.5)}
-    .modal-head{display:flex;justify-content:space-between;gap:10px}
-    .modal h2{margin:0;font-size:20px}
-    .modal-close{width:40px;height:40px;flex:0 0 auto;border-radius:12px;background:rgba(255,255,255,.08);font-size:23px}
-    .final{margin:3px 0 12px;color:var(--amber);font-weight:900}
-    .report{display:flex;flex-direction:column;overflow:hidden}
-    .report textarea{width:100%;min-height:390px;flex:1;padding:13px;border:1px solid var(--line);border-radius:14px;resize:none;background:#07131f;color:#e9f1f7;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.5}
-    .modal-actions{display:grid;grid-template-columns:1.6fr 1fr;gap:8px;margin-top:10px}
-    .modal-btn{min-height:49px;border-radius:13px;background:rgba(255,255,255,.09);font-weight:900}
-    .modal-btn.primary{background:var(--green);color:#04261b;font-size:15px}
-    .edit-context{margin:3px 0 10px;color:var(--muted);font-size:12px}
-    .quarter-select{width:100%;height:44px;margin-bottom:10px;padding:0 11px;border:1px solid var(--line);border-radius:12px;background:#07131f;color:var(--text);font-weight:850}
-    .edit-score{margin-bottom:10px;padding:10px;border-radius:13px;background:rgba(96,165,250,.1);color:#a8ceff;text-align:center;font-size:18px;font-weight:950}
-    .edit-group{margin-bottom:9px;padding:10px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
-    .edit-group h3{margin:0 0 8px;font-size:13px}
-    .edit-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .counter-label{display:block;margin-bottom:4px;color:var(--muted);font-size:10px;font-weight:900;text-align:center;text-transform:uppercase}
-    .counter{display:grid;grid-template-columns:38px 1fr 38px;align-items:center;gap:4px}
-    .counter button{height:38px;border-radius:10px;background:rgba(255,255,255,.09);font-size:20px;font-weight:950}
-    .counter strong{font-size:22px;text-align:center;font-variant-numeric:tabular-nums}
-    .opp-counter{max-width:220px;margin:auto}
-    .edit-player-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-    .edit-player-head h3{margin:0}
-    .edit-rebound-summary{margin:8px 0 6px;color:#ffdc88;font-size:10px;font-weight:900;text-align:center}
-    .toast{position:fixed;z-index:60;left:50%;bottom:calc(76px + env(safe-area-inset-bottom));max-width:calc(100% - 32px);padding:11px 16px;border-radius:999px;background:#f6fbff;color:#0b1a28;font-size:13px;font-weight:850;opacity:0;pointer-events:none;transform:translate(-50%,16px);transition:.2s}
-    .toast.show{opacity:1;transform:translate(-50%,0)}
-    @media(max-height:800px){.live{gap:5px;padding-top:5px}.timer{font-size:43px}.timer-btn{min-height:40px}.match{padding:5px 13px}.score{font-size:40px}.shooting{padding:5px 9px}.stat{min-height:29px;font-size:20px}.totals{margin-top:4px;padding-top:4px}.total{min-height:30px}.total strong{font-size:18px}.shooter-card{padding:5px}.shooter-card h2{margin-bottom:4px}.score-btn{min-height:52px;font-size:14px}.undo{min-height:25px}.opp{padding:5px}.opp-add,.opp-undo{min-height:49px}}
-    @media(max-width:355px){.live{padding-left:7px;padding-right:7px}.shoot-grid{grid-template-columns:78px 1fr 1fr 1.1fr;gap:4px}.totals{grid-template-columns:78px repeat(3,1fr);gap:4px}.shooter-name,.shooter-card h2{font-size:12px}.score-btn{font-size:14px}.stat.pct{font-size:16px}.total span{font-size:8px}.game-actions{grid-template-columns:1fr 1fr 40px}.event-add{font-size:9px}.quick-rebound-header,.quick-rebound-row{grid-template-columns:27px minmax(0,1fr) minmax(0,1fr) 35px;gap:3px}.quick-rebound-control{grid-template-columns:minmax(0,1fr) 23px}}
+    .modal-head{display:flex;justify-content:space-between;gap:10px}.modal h2{margin:0;font-size:20px}.modal-close{width:40px;height:40px;flex:0 0 auto;border-radius:12px;background:rgba(255,255,255,.08);font-size:23px}.final{margin:3px 0 12px;color:var(--amber);font-weight:900}
+    .report{display:flex;flex-direction:column;overflow:hidden}.report textarea{width:100%;min-height:390px;flex:1;padding:13px;border:1px solid var(--line);border-radius:14px;resize:none;background:#07131f;color:#e9f1f7;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.5}
+    .modal-actions{display:grid;grid-template-columns:1.6fr 1fr;gap:8px;margin-top:10px}.modal-btn{min-height:49px;border-radius:13px;background:rgba(255,255,255,.09);font-weight:900}.modal-btn.primary{background:var(--green);color:#04261b;font-size:15px}
+    .edit-context{margin:3px 0 10px;color:var(--muted);font-size:12px}.quarter-select{width:100%;height:44px;margin-bottom:10px;padding:0 11px;border:1px solid var(--line);border-radius:12px;background:#07131f;color:var(--text);font-weight:850}.edit-score{margin-bottom:10px;padding:10px;border-radius:13px;background:rgba(96,165,250,.1);color:#a8ceff;text-align:center;font-size:18px;font-weight:950}
+    .edit-group{margin-bottom:9px;padding:10px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}.edit-group h3{margin:0 0 8px;font-size:13px}.edit-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}.counter-label{display:block;margin-bottom:4px;color:var(--muted);font-size:10px;font-weight:900;text-align:center;text-transform:uppercase}.counter{display:grid;grid-template-columns:38px 1fr 38px;align-items:center;gap:4px}.counter button{height:38px;border-radius:10px;background:rgba(255,255,255,.09);font-size:20px;font-weight:950}.counter strong{font-size:22px;text-align:center;font-variant-numeric:tabular-nums}.opp-counter{max-width:220px;margin:auto}.edit-rebound-summary{margin:8px 0 6px;color:#ffdc88;font-size:10px;font-weight:900;text-align:center}
+    .toast{position:fixed;z-index:60;left:50%;bottom:calc(67px + env(safe-area-inset-bottom));max-width:calc(100% - 32px);padding:10px 15px;border-radius:999px;background:#f6fbff;color:#0b1a28;font-size:12px;font-weight:850;opacity:0;pointer-events:none;transform:translate(-50%,16px);transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+
+    @media(min-height:850px) and (max-width:520px){.score-screen,.stats-screen{height:calc(100dvh - 104px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:hidden}.score-screen{justify-content:space-between}.stats-screen{display:flex;flex-direction:column}.stats-grid{flex:1;grid-template-rows:repeat(4,minmax(0,1fr))}.stat-player-card{display:flex;flex-direction:column;justify-content:center}}
+    @media(max-height:749px){.score-screen{overflow-y:auto}.timer-card{min-height:50px}.timer{font-size:30px}.timer-btn{min-height:32px}.score-btn{min-height:44px}.quick-rebound-add,.quick-rebound-undo{min-height:28px}.stats-screen{overflow-y:auto}}
+    @media(max-width:355px){.score-screen{padding-left:5px;padding-right:5px}.timer-card{grid-template-columns:1fr 142px}.shoot-grid{grid-template-columns:69px 1fr 1fr 1.05fr}.totals{grid-template-columns:69px repeat(3,1fr)}.shooter-name{font-size:10px}.quick-rebound-header,.quick-rebound-row{grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) 33px;gap:3px}.quick-rebound-control{grid-template-columns:minmax(0,1fr) 21px}.event-add{font-size:8px}}
   </style>
 </head>
 <body>
   <main class="app">
-    <header class="topbar">
-      <div class="quarter-pill" id="quarterLabel">Q1</div>
-      <h1 id="appTitle">Netball Score Tracker</h1>
-      <button class="icon-btn" id="menuOpen" aria-label="Open game menu">☰</button>
-    </header>
+    <header class="topbar"><div class="quarter-pill" id="quarterLabel">Q1</div><h1 id="appTitle">Netball Score Tracker</h1><button class="icon-btn" id="menuOpen" aria-label="Open game menu">☰</button></header>
 
-    <section class="screen live" id="scoreScreen" role="tabpanel" aria-labelledby="scoreTab">
-      <section class="card timer-card">
-        <div class="timer-meta"><span class="timer-dot" id="timerDot"></span><span id="timerStatus">Ready · 10 minute quarter</span></div>
-        <div class="timer" id="timerDisplay">10:00</div>
-        <div class="timer-controls"><button class="timer-btn primary" id="timerToggle">▶ Start</button><button class="timer-btn" id="timerReset">↻ Reset</button></div>
-      </section>
-      <section class="card match">
-        <div class="label">Current quarter score</div>
-        <div class="match-grid"><div class="team"><div class="team-name">Our team</div><div class="score home" id="homeScore">0</div></div><div class="dash">–</div><div class="team"><div class="team-name">Opposition</div><div class="score away" id="oppositionScore">0</div></div></div>
-      </section>
-      <section class="card shooting">
-        <div class="label">Shooting breakdown</div>
-        <div class="shoot-grid"><div></div><div class="col">Goals</div><div class="col">Misses</div><div class="col">Goal %</div><div class="shooter-name">Goal Shoot</div><div class="stat goal" id="gsGoals">0</div><div class="stat miss" id="gsMisses">0</div><div class="stat pct" id="gsPct">—</div><div class="shooter-name">Goal Attack</div><div class="stat goal" id="gaGoals">0</div><div class="stat miss" id="gaMisses">0</div><div class="stat pct" id="gaPct">—</div></div>
-        <div class="totals"><div class="totals-title">Both players</div><div class="total"><span>Total goals</span><strong id="allGoals">0</strong></div><div class="total"><span>Attempts</span><strong id="allAttempts">0</strong></div><div class="total"><span>Goal %</span><strong id="allPct">—</strong></div></div>
-      </section>
-      <section class="shooters">
-        <article class="card shooter-card"><h2>Goal Shoot</h2><div class="action-grid"><button class="score-btn goal-btn" data-act="gsG"><span>✓</span>GOAL</button><button class="score-btn miss-btn" data-act="gsM"><span>×</span>MISS</button></div><div class="undo-grid"><button class="undo" data-act="ugsG">↶ Undo goal</button><button class="undo" data-act="ugsM">↶ Undo miss</button></div></article>
-        <article class="card shooter-card"><h2>Goal Attack</h2><div class="action-grid"><button class="score-btn goal-btn" data-act="gaG"><span>✓</span>GOAL</button><button class="score-btn miss-btn" data-act="gaM"><span>×</span>MISS</button></div><div class="undo-grid"><button class="undo" data-act="ugaG">↶ Undo goal</button><button class="undo" data-act="ugaM">↶ Undo miss</button></div></article>
-      </section>
+    <section class="screen score-screen" id="scoreScreen" role="tabpanel" aria-labelledby="scoreTab">
+      <section class="card timer-card"><div class="timer-left"><div class="timer-meta"><span class="timer-dot" id="timerDot"></span><span id="timerStatus">Ready · 10 minute quarter</span></div><div class="timer" id="timerDisplay">10:00</div></div><div class="timer-controls"><button class="timer-btn primary" id="timerToggle">▶ Start</button><button class="timer-btn" id="timerReset">↻ Reset</button></div></section>
+      <section class="card match"><div class="label">Current quarter score</div><div class="match-grid"><div class="team"><div class="team-name">Our team</div><div class="score home" id="homeScore">0</div></div><div class="dash">–</div><div class="team"><div class="team-name">Opposition</div><div class="score away" id="oppositionScore">0</div></div></div></section>
+      <section class="card shooting"><div class="label">Shooting breakdown</div><div class="shoot-grid"><div></div><div class="col">Goals</div><div class="col">Misses</div><div class="col">Goal %</div><div class="shooter-name">Goal Shoot</div><div class="stat goal" id="gsGoals">0</div><div class="stat miss" id="gsMisses">0</div><div class="stat pct" id="gsPct">—</div><div class="shooter-name">Goal Attack</div><div class="stat goal" id="gaGoals">0</div><div class="stat miss" id="gaMisses">0</div><div class="stat pct" id="gaPct">—</div></div><div class="totals"><div class="totals-title">Both players</div><div class="total"><span>Total goals</span><strong id="allGoals">0</strong></div><div class="total"><span>Attempts</span><strong id="allAttempts">0</strong></div><div class="total"><span>Goal %</span><strong id="allPct">—</strong></div></div></section>
+      <section class="shooters"><article class="card shooter-card"><h2>Goal Shoot</h2><div class="action-grid"><button class="score-btn goal-btn" data-act="gsG"><span>✓</span>GOAL</button><button class="score-btn miss-btn" data-act="gsM"><span>×</span>MISS</button></div><div class="undo-grid"><button class="undo" data-act="ugsG">↶ Undo goal</button><button class="undo" data-act="ugsM">↶ Undo miss</button></div></article><article class="card shooter-card"><h2>Goal Attack</h2><div class="action-grid"><button class="score-btn goal-btn" data-act="gaG"><span>✓</span>GOAL</button><button class="score-btn miss-btn" data-act="gaM"><span>×</span>MISS</button></div><div class="undo-grid"><button class="undo" data-act="ugaG">↶ Undo goal</button><button class="undo" data-act="ugaM">↶ Undo miss</button></div></article></section>
       <section class="card opp"><button class="opp-add" id="oppAdd"><span>+</span>OPPOSITION GOAL</button><button class="opp-undo" id="oppUndo">↶<br>Undo</button></section>
-      <section class="card quick-rebounds">
-        <div class="quick-rebound-title"><div class="label">Quick rebounds</div><span>Shared with Stats</span></div>
-        <div class="quick-rebound-grid" id="scoreReboundGrid">
-          <div class="quick-rebound-header"><span></span><span>Won</span><span>Missed</span><span>Rate</span></div>
-          <div class="quick-rebound-row" data-score-rebound-row="GS"><strong class="quick-rebound-position">GS</strong><div class="quick-rebound-control"><button class="quick-rebound-add" data-score-rebound-add="1" data-position="GS" data-stat-key="reboundWon">+ Won <strong data-score-rebound-count="GS-reboundWon">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo="1" data-position="GS" data-stat-key="reboundWon" aria-label="Undo GS rebound won">↶</button></div><div class="quick-rebound-control"><button class="quick-rebound-add missed" data-score-rebound-add="1" data-position="GS" data-stat-key="reboundMissed">+ Miss <strong data-score-rebound-count="GS-reboundMissed">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo="1" data-position="GS" data-stat-key="reboundMissed" aria-label="Undo GS rebound missed">↶</button></div><span class="quick-rebound-pct" data-score-rebound-pct="GS">—</span></div>
-          <div class="quick-rebound-row" data-score-rebound-row="GA"><strong class="quick-rebound-position">GA</strong><div class="quick-rebound-control"><button class="quick-rebound-add" data-score-rebound-add="1" data-position="GA" data-stat-key="reboundWon">+ Won <strong data-score-rebound-count="GA-reboundWon">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo="1" data-position="GA" data-stat-key="reboundWon" aria-label="Undo GA rebound won">↶</button></div><div class="quick-rebound-control"><button class="quick-rebound-add missed" data-score-rebound-add="1" data-position="GA" data-stat-key="reboundMissed">+ Miss <strong data-score-rebound-count="GA-reboundMissed">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo="1" data-position="GA" data-stat-key="reboundMissed" aria-label="Undo GA rebound missed">↶</button></div><span class="quick-rebound-pct" data-score-rebound-pct="GA">—</span></div>
-          <div class="quick-rebound-row" data-score-rebound-row="GD"><strong class="quick-rebound-position">GD</strong><div class="quick-rebound-control"><button class="quick-rebound-add" data-score-rebound-add="1" data-position="GD" data-stat-key="reboundWon">+ Won <strong data-score-rebound-count="GD-reboundWon">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo="1" data-position="GD" data-stat-key="reboundWon" aria-label="Undo GD rebound won">↶</button></div><div class="quick-rebound-control"><button class="quick-rebound-add missed" data-score-rebound-add="1" data-position="GD" data-stat-key="reboundMissed">+ Miss <strong data-score-rebound-count="GD-reboundMissed">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo="1" data-position="GD" data-stat-key="reboundMissed" aria-label="Undo GD rebound missed">↶</button></div><span class="quick-rebound-pct" data-score-rebound-pct="GD">—</span></div>
-          <div class="quick-rebound-row" data-score-rebound-row="GK"><strong class="quick-rebound-position">GK</strong><div class="quick-rebound-control"><button class="quick-rebound-add" data-score-rebound-add="1" data-position="GK" data-stat-key="reboundWon">+ Won <strong data-score-rebound-count="GK-reboundWon">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo="1" data-position="GK" data-stat-key="reboundWon" aria-label="Undo GK rebound won">↶</button></div><div class="quick-rebound-control"><button class="quick-rebound-add missed" data-score-rebound-add="1" data-position="GK" data-stat-key="reboundMissed">+ Miss <strong data-score-rebound-count="GK-reboundMissed">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo="1" data-position="GK" data-stat-key="reboundMissed" aria-label="Undo GK rebound missed">↶</button></div><span class="quick-rebound-pct" data-score-rebound-pct="GK">—</span></div>
-        </div>
-      </section>
+      <section class="card quick-rebounds"><div class="quick-rebound-title"><div class="label">Rebounds</div><span>Won, missed and rate</span></div><div class="quick-rebound-grid" id="scoreReboundGrid"><div class="quick-rebound-header"><span></span><span>Won</span><span>Missed</span><span>Rate</span></div>
+        <div class="quick-rebound-row"><strong class="quick-rebound-position">GS</strong><div class="quick-rebound-control"><button class="quick-rebound-add" data-score-rebound-add data-position="GS" data-stat-key="reboundWon">+ Won <strong data-score-rebound-count="GS-reboundWon">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo data-position="GS" data-stat-key="reboundWon" aria-label="Undo GS rebound won">↶</button></div><div class="quick-rebound-control"><button class="quick-rebound-add missed" data-score-rebound-add data-position="GS" data-stat-key="reboundMissed">+ Miss <strong data-score-rebound-count="GS-reboundMissed">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo data-position="GS" data-stat-key="reboundMissed" aria-label="Undo GS rebound missed">↶</button></div><span class="quick-rebound-pct" data-score-rebound-pct="GS">—</span></div>
+        <div class="quick-rebound-row"><strong class="quick-rebound-position">GA</strong><div class="quick-rebound-control"><button class="quick-rebound-add" data-score-rebound-add data-position="GA" data-stat-key="reboundWon">+ Won <strong data-score-rebound-count="GA-reboundWon">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo data-position="GA" data-stat-key="reboundWon" aria-label="Undo GA rebound won">↶</button></div><div class="quick-rebound-control"><button class="quick-rebound-add missed" data-score-rebound-add data-position="GA" data-stat-key="reboundMissed">+ Miss <strong data-score-rebound-count="GA-reboundMissed">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo data-position="GA" data-stat-key="reboundMissed" aria-label="Undo GA rebound missed">↶</button></div><span class="quick-rebound-pct" data-score-rebound-pct="GA">—</span></div>
+        <div class="quick-rebound-row"><strong class="quick-rebound-position">GD</strong><div class="quick-rebound-control"><button class="quick-rebound-add" data-score-rebound-add data-position="GD" data-stat-key="reboundWon">+ Won <strong data-score-rebound-count="GD-reboundWon">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo data-position="GD" data-stat-key="reboundWon" aria-label="Undo GD rebound won">↶</button></div><div class="quick-rebound-control"><button class="quick-rebound-add missed" data-score-rebound-add data-position="GD" data-stat-key="reboundMissed">+ Miss <strong data-score-rebound-count="GD-reboundMissed">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo data-position="GD" data-stat-key="reboundMissed" aria-label="Undo GD rebound missed">↶</button></div><span class="quick-rebound-pct" data-score-rebound-pct="GD">—</span></div>
+        <div class="quick-rebound-row"><strong class="quick-rebound-position">GK</strong><div class="quick-rebound-control"><button class="quick-rebound-add" data-score-rebound-add data-position="GK" data-stat-key="reboundWon">+ Won <strong data-score-rebound-count="GK-reboundWon">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo data-position="GK" data-stat-key="reboundWon" aria-label="Undo GK rebound won">↶</button></div><div class="quick-rebound-control"><button class="quick-rebound-add missed" data-score-rebound-add data-position="GK" data-stat-key="reboundMissed">+ Miss <strong data-score-rebound-count="GK-reboundMissed">0</strong></button><button class="quick-rebound-undo" data-score-rebound-undo data-position="GK" data-stat-key="reboundMissed" aria-label="Undo GK rebound missed">↶</button></div><span class="quick-rebound-pct" data-score-rebound-pct="GK">—</span></div>
+      </div></section>
     </section>
 
-    <section class="screen stats-screen" id="statsScreen" role="tabpanel" aria-labelledby="statsTab" hidden>
-      <section class="card stats-intro"><div><h2>Current positions</h2><p>Every tap is saved on this device.</p></div><div class="stats-quarter" id="statsQuarter">Quarter 1</div></section>
-      <section class="stats-grid" id="statsGrid"></section>
-    </section>
+    <section class="screen stats-screen" id="statsScreen" role="tabpanel" aria-labelledby="statsTab" hidden><section class="card stats-intro"><div><h2>Position statistics</h2><p>Intercepts and turnovers for this quarter.</p></div><div class="stats-quarter" id="statsQuarter">Quarter 1</div></section><section class="stats-grid" id="statsGrid"></section></section>
   </main>
 
-  <nav class="bottom-tabs" role="tablist" aria-label="App screens">
-    <button class="tab-btn" id="scoreTab" role="tab" data-tab="score" aria-controls="scoreScreen" aria-selected="true">🏐 Score</button>
-    <button class="tab-btn" id="statsTab" role="tab" data-tab="stats" aria-controls="statsScreen" aria-selected="false">📊 Stats</button>
-  </nav>
+  <nav class="bottom-tabs" role="tablist" aria-label="App screens"><button class="tab-btn" id="scoreTab" role="tab" data-tab="score" aria-controls="scoreScreen" aria-selected="true">🏐 Score</button><button class="tab-btn" id="statsTab" role="tab" data-tab="stats" aria-controls="statsScreen" aria-selected="false">📊 Stats</button></nav>
 
   <div class="backdrop" id="backdrop"></div>
-  <aside class="drawer" id="drawer">
-    <div class="drawer-head"><h2>Game menu</h2><button class="close" id="menuClose" aria-label="Close game menu">×</button></div>
-    <section class="menu-section"><h3>Quarter length</h3><div class="duration-grid"><button class="duration active" data-min="10">10 min</button><button class="duration" data-min="12">12 min</button><button class="duration" data-min="15">15 min</button></div><div class="custom"><input id="customMinutes" type="number" min="1" max="60" placeholder="Custom minutes"><button id="setCustom">Set</button></div></section>
-    <section class="menu-section"><h3>Quarter controls</h3><div class="menu-actions"><button class="menu-action primary" id="saveQuarter">Save quarter &amp; continue</button><button class="menu-action" id="resetQuarter">↻ Quick reset current quarter</button><button class="menu-action" id="addMinute">＋ Add 1 minute to timer</button></div></section>
-    <section class="menu-section"><h3>Finish game</h3><button class="menu-action finish" id="finishGame">Save game &amp; create report</button></section>
-    <section class="menu-section"><h3>Saved quarters</h3><div id="quarterHistory"><p class="empty">No quarters saved yet.</p></div></section>
-    <section class="menu-section"><h3>Completed games</h3><div id="savedGames"><p class="empty">No completed games saved yet.</p></div></section>
-    <section class="menu-section"><h3>New game</h3><button class="menu-action danger" id="newGame">Start a new game</button></section>
-    <p class="storage-note">Progress and completed games are saved on this device.</p>
-  </aside>
+  <aside class="drawer" id="drawer"><div class="drawer-head"><h2>Game menu</h2><button class="close" id="menuClose" aria-label="Close game menu">×</button></div><section class="menu-section"><h3>Quarter length</h3><div class="duration-grid"><button class="duration active" data-min="10">10 min</button><button class="duration" data-min="12">12 min</button><button class="duration" data-min="15">15 min</button></div><div class="custom"><input id="customMinutes" type="number" min="1" max="60" placeholder="Custom minutes"><button id="setCustom">Set</button></div></section><section class="menu-section"><h3>Quarter controls</h3><div class="menu-actions"><button class="menu-action primary" id="saveQuarter">Save quarter &amp; continue</button><button class="menu-action" id="resetQuarter">↻ Quick reset current quarter</button><button class="menu-action" id="addMinute">＋ Add 1 minute to timer</button></div></section><section class="menu-section"><h3>Finish game</h3><button class="menu-action finish" id="finishGame">Save game &amp; create report</button></section><section class="menu-section"><h3>Saved quarters</h3><div id="quarterHistory"><p class="empty">No quarters saved yet.</p></div></section><section class="menu-section"><h3>Completed games</h3><div id="savedGames"><p class="empty">No completed games saved yet.</p></div></section><section class="menu-section"><h3>New game</h3><button class="menu-action danger" id="newGame">Start a new game</button></section><p class="storage-note">Progress and completed games are saved on this device.</p></aside>
 
   <div class="modal-bg" id="reportBg"><section class="modal report"><div class="modal-head"><div><h2>Game summary report</h2><div class="final" id="reportScore"></div></div><button class="modal-close" id="reportClose" aria-label="Close report">×</button></div><textarea id="reportText" readonly></textarea><div class="modal-actions"><button class="modal-btn primary" id="copyReport">Copy report</button><button class="modal-btn" id="reportDone">Done</button></div></section></div>
-
-  <div class="modal-bg" id="editBg"><section class="modal editor"><div class="modal-head"><div><h2>Edit saved quarter</h2><div class="edit-context" id="editContext"></div></div><button class="modal-close" id="editClose" aria-label="Close editor">×</button></div><select class="quarter-select" id="editQuarterSelect" aria-label="Choose quarter"></select><div class="edit-score" id="editScore">Our Team 0 – 0 Opposition</div><div class="edit-group"><h3>Goal Shoot</h3><div class="edit-pair"><div><span class="counter-label">Goals</span><div class="counter"><button data-edit="gsGoals" data-delta="-1">−</button><strong id="editGsGoals">0</strong><button data-edit="gsGoals" data-delta="1">+</button></div></div><div><span class="counter-label">Misses</span><div class="counter"><button data-edit="gsMisses" data-delta="-1">−</button><strong id="editGsMisses">0</strong><button data-edit="gsMisses" data-delta="1">+</button></div></div></div></div><div class="edit-group"><h3>Goal Attack</h3><div class="edit-pair"><div><span class="counter-label">Goals</span><div class="counter"><button data-edit="gaGoals" data-delta="-1">−</button><strong id="editGaGoals">0</strong><button data-edit="gaGoals" data-delta="1">+</button></div></div><div><span class="counter-label">Misses</span><div class="counter"><button data-edit="gaMisses" data-delta="-1">−</button><strong id="editGaMisses">0</strong><button data-edit="gaMisses" data-delta="1">+</button></div></div></div></div><div class="edit-group"><h3>Opposition</h3><div class="opp-counter"><span class="counter-label">Goals</span><div class="counter"><button data-edit="opposition" data-delta="-1">−</button><strong id="editOpposition">0</strong><button data-edit="opposition" data-delta="1">+</button></div></div></div><div id="editPlayerStats"></div><div class="modal-actions"><button class="modal-btn primary" id="saveEdit">Save changes</button><button class="modal-btn" id="editCancel">Cancel</button></div></section></div>
+  <div class="modal-bg" id="editBg"><section class="modal"><div class="modal-head"><div><h2>Edit saved quarter</h2><div class="edit-context" id="editContext"></div></div><button class="modal-close" id="editClose" aria-label="Close editor">×</button></div><select class="quarter-select" id="editQuarterSelect" aria-label="Choose quarter"></select><div class="edit-score" id="editScore"></div><div class="edit-group"><h3>Goal Shoot</h3><div class="edit-pair"><div><span class="counter-label">Goals</span><div class="counter"><button data-edit="gsGoals" data-delta="-1">−</button><strong id="editGsGoals">0</strong><button data-edit="gsGoals" data-delta="1">+</button></div></div><div><span class="counter-label">Misses</span><div class="counter"><button data-edit="gsMisses" data-delta="-1">−</button><strong id="editGsMisses">0</strong><button data-edit="gsMisses" data-delta="1">+</button></div></div></div></div><div class="edit-group"><h3>Goal Attack</h3><div class="edit-pair"><div><span class="counter-label">Goals</span><div class="counter"><button data-edit="gaGoals" data-delta="-1">−</button><strong id="editGaGoals">0</strong><button data-edit="gaGoals" data-delta="1">+</button></div></div><div><span class="counter-label">Misses</span><div class="counter"><button data-edit="gaMisses" data-delta="-1">−</button><strong id="editGaMisses">0</strong><button data-edit="gaMisses" data-delta="1">+</button></div></div></div></div><div class="edit-group"><h3>Opposition</h3><div class="opp-counter"><span class="counter-label">Goals</span><div class="counter"><button data-edit="opposition" data-delta="-1">−</button><strong id="editOpposition">0</strong><button data-edit="opposition" data-delta="1">+</button></div></div></div><div id="editPlayerStats"></div><div class="modal-actions"><button class="modal-btn primary" id="saveEdit">Save changes</button><button class="modal-btn" id="editCancel">Cancel</button></div></section></div>
   <div class="toast" id="toast"></div>
 
   <script>
-  (() => {
+  (()=>{
     "use strict";
-
-    const KEY = "netball-score-tracker-v3";
-    const POSITIONS = ["GS", "GA", "WA", "C", "WD", "GD", "GK"];
-    const REBOUND_POSITIONS = new Set(["GS", "GA", "GD", "GK"]);
-    const DEFAULT_NAMES = {GS:"", GA:"", WA:"", C:"", WD:"", GD:"", GK:""};
-    const $ = selector => document.querySelector(selector);
-    const $$ = selector => [...document.querySelectorAll(selector)];
-
-    function emptyStat() {
-      return {intercepts:0, turnovers:0, reboundWon:0, reboundMissed:0};
-    }
-
-    function emptyStats() {
-      return Object.fromEntries(POSITIONS.map(position => [position, emptyStat()]));
-    }
-
-    function freshState() {
-      return {
-        quarter:1,
-        durationSeconds:600,
-        remainingSeconds:600,
-        isRunning:false,
-        lastStartedAt:null,
-        gsGoals:0,
-        gsMisses:0,
-        gaGoals:0,
-        gaMisses:0,
-        opposition:0,
-        stats:emptyStats(),
-        playerNames:{...DEFAULT_NAMES},
-        activeTab:"score",
-        history:[],
-        completedGames:[],
-        savedGameId:null
-      };
-    }
-
-    function n(value) {
-      value = Number(value);
-      return Number.isFinite(value) ? value : 0;
-    }
-
-    function normaliseNames(value) {
-      const names = {...DEFAULT_NAMES};
-      if (value && typeof value === "object") {
-        POSITIONS.forEach(position => names[position] = String(value[position] || "").slice(0, 40));
-      }
-      return names;
-    }
-
-    function normaliseStats(value) {
-      const stats = emptyStats();
-      if (!value || typeof value !== "object") return stats;
-      POSITIONS.forEach(position => {
-        const source = value[position] || {};
-        stats[position] = {
-          intercepts:Math.max(0, n(source.intercepts)),
-          turnovers:Math.max(0, n(source.turnovers)),
-          reboundWon:Math.max(0, n(source.reboundWon)),
-          reboundMissed:Math.max(0, n(source.reboundMissed))
-        };
-      });
-      return stats;
-    }
-
-    function cloneStats(value) {
-      return normaliseStats(value);
-    }
-
-    function cloneNames(value) {
-      return normaliseNames(value);
-    }
-
-    function normaliseQuarter(record, namesFallback) {
-      const q = record || {};
-      return {
-        ...q,
-        quarter:Math.max(1, n(q.quarter) || 1),
-        home:Math.max(0, n(q.home)),
-        opposition:Math.max(0, n(q.opposition)),
-        gsGoals:Math.max(0, n(q.gsGoals)),
-        gsMisses:Math.max(0, n(q.gsMisses)),
-        gaGoals:Math.max(0, n(q.gaGoals)),
-        gaMisses:Math.max(0, n(q.gaMisses)),
-        stats:normaliseStats(q.stats),
-        playerNames:normaliseNames(q.playerNames || namesFallback),
-        savedAt:q.savedAt || new Date().toISOString()
-      };
-    }
-
-    function load() {
-      const fallback = freshState();
-      try {
-        const stored = JSON.parse(localStorage.getItem(KEY));
-        if (!stored) return fallback;
-        const state = {...fallback, ...stored};
-        state.playerNames = normaliseNames(stored.playerNames);
-        state.stats = normaliseStats(stored.stats);
-        state.activeTab = stored.activeTab === "stats" ? "stats" : "score";
-        state.history = Array.isArray(stored.history) ? stored.history.map(q => normaliseQuarter(q, state.playerNames)) : [];
-        state.completedGames = Array.isArray(stored.completedGames) ? stored.completedGames.map(game => normaliseGame(game, state.playerNames)) : [];
-        if (state.isRunning && state.lastStartedAt) {
-          const elapsed = Math.floor((Date.now() - state.lastStartedAt) / 1000);
-          state.remainingSeconds = Math.max(0, state.remainingSeconds - elapsed);
-          state.lastStartedAt = state.remainingSeconds ? Date.now() : null;
-          state.isRunning = Boolean(state.remainingSeconds);
-        }
-        return state;
-      } catch {
-        return fallback;
-      }
-    }
-
-    function save() {
-      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
-    }
-
-    function pct(success, missed) {
-      return success + missed ? `${Math.round(success / (success + missed) * 100)}%` : "—";
-    }
-
-    function time(seconds) {
-      seconds = Math.max(0, Math.floor(seconds));
-      return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-    }
-
-    function totalStats(stats) {
-      return POSITIONS.reduce((totals, position) => {
-        const item = normaliseStats(stats)[position];
-        totals.intercepts += item.intercepts;
-        totals.turnovers += item.turnovers;
-        totals.reboundWon += item.reboundWon;
-        totals.reboundMissed += item.reboundMissed;
-        return totals;
-      }, emptyStat());
-    }
-
-    function render() {
-      const goals = state.gsGoals + state.gaGoals;
-      const misses = state.gsMisses + state.gaMisses;
-      $("#quarterLabel").textContent = `Q${state.quarter}`;
-      $("#statsQuarter").textContent = `Quarter ${state.quarter}`;
-      $("#timerDisplay").textContent = time(state.remainingSeconds);
-      $("#homeScore").textContent = goals;
-      $("#oppositionScore").textContent = state.opposition;
-      $("#gsGoals").textContent = state.gsGoals;
-      $("#gsMisses").textContent = state.gsMisses;
-      $("#gsPct").textContent = pct(state.gsGoals, state.gsMisses);
-      $("#gaGoals").textContent = state.gaGoals;
-      $("#gaMisses").textContent = state.gaMisses;
-      $("#gaPct").textContent = pct(state.gaGoals, state.gaMisses);
-      $("#allGoals").textContent = goals;
-      $("#allAttempts").textContent = goals + misses;
-      $("#allPct").textContent = pct(goals, misses);
-      $("#timerStatus").textContent = state.remainingSeconds === 0 ? "Quarter finished" : state.isRunning ? "Timer running" : state.remainingSeconds < state.durationSeconds ? "Timer paused" : `Ready · ${state.durationSeconds / 60} minute quarter`;
-      $("#timerDot").classList.toggle("running", state.isRunning);
-      $("#timerToggle").textContent = state.isRunning ? "Ⅱ Pause" : "▶ Start";
-      $("#timerToggle").classList.toggle("paused", !state.isRunning && state.remainingSeconds < state.durationSeconds && state.remainingSeconds > 0);
-      $("#timerToggle").disabled = !state.remainingSeconds;
-      $$('[data-min]').forEach(button => button.classList.toggle("active", n(button.dataset.min) * 60 === state.durationSeconds));
-      $("#finishGame").textContent = state.savedGameId ? "Update saved game & report" : "Save game & create report";
-      renderTab();
-      renderStats();
-      renderQuarters();
-      renderGames();
-      save();
-    }
-
-    function renderTab() {
-      const statsActive = state.activeTab === "stats";
-      $("#scoreScreen").hidden = statsActive;
-      $("#statsScreen").hidden = !statsActive;
-      $("#scoreTab").setAttribute("aria-selected", String(!statsActive));
-      $("#statsTab").setAttribute("aria-selected", String(statsActive));
-      $("#appTitle").textContent = statsActive ? "Player Statistics" : "Netball Score Tracker";
-    }
-
-    function statsCard(position) {
-      const reboundControls = REBOUND_POSITIONS.has(position) ? `
-        <div class="rebound-head"><span>Rebounds</span><span class="rebound-pct" data-rebound-pct="${position}">—</span></div>
-        <div class="event-grid">
-          ${eventControl(position, "reboundWon", "Rebound Won +", "rebound-won")}
-          ${eventControl(position, "reboundMissed", "Rebound Missed +", "rebound-missed")}
-        </div>` : "";
-      return `<article class="card stat-player-card" data-player-card="${position}">
-        <div class="player-head"><div class="position-badge">${position}</div></div>
-        <div class="event-grid">
-          ${eventControl(position, "intercepts", "Intercept +", "intercept")}
-          ${eventControl(position, "turnovers", "Turnover +", "turnover")}
-        </div>${reboundControls}
-      </article>`;
-    }
-
-    function eventControl(position, key, label, className) {
-      return `<div class="event-control"><button class="event-add ${className}" data-stat-add="1" data-position="${position}" data-stat-key="${key}"><span>${label}</span><strong data-stat-count="${position}-${key}">0</strong></button><button class="event-undo" data-stat-undo="1" data-position="${position}" data-stat-key="${key}">↶ Undo ${label.replace(" +", "").toLowerCase()}</button></div>`;
-    }
-
-    function renderStats() {
-      const grid = $("#statsGrid");
-      if (!grid.children.length) grid.innerHTML = POSITIONS.map(statsCard).join("");
-      POSITIONS.forEach(position => {
-        const item = state.stats[position];
-        ["intercepts", "turnovers", "reboundWon", "reboundMissed"].forEach(key => {
-          const count = grid.querySelector(`[data-stat-count="${position}-${key}"]`);
-          if (count) count.textContent = item[key];
-          const quickCount = document.querySelector(`[data-score-rebound-count="${position}-${key}"]`);
-          if (quickCount) quickCount.textContent = item[key];
-        });
-        const reboundPct = grid.querySelector(`[data-rebound-pct="${position}"]`);
-        if (reboundPct) reboundPct.textContent = pct(item.reboundWon, item.reboundMissed);
-        const quickPct = document.querySelector(`[data-score-rebound-pct="${position}"]`);
-        if (quickPct) quickPct.textContent = pct(item.reboundWon, item.reboundMissed);
-      });
-    }
-
-    function renderQuarters() {
-      const container = $("#quarterHistory");
-      if (!state.history.length) {
-        container.innerHTML = '<p class="empty">No quarters saved yet.</p>';
-        return;
-      }
-      container.innerHTML = `<div class="list">${state.history.map(q => {
-        const totals = totalStats(q.stats);
-        return `<div class="item"><div class="item-top"><span>Quarter ${n(q.quarter)}</span><span class="item-score">${n(q.home)} – ${n(q.opposition)}</span></div><div class="item-detail">GS: ${n(q.gsGoals)} goals, ${n(q.gsMisses)} misses (${pct(n(q.gsGoals), n(q.gsMisses))})<br>GA: ${n(q.gaGoals)} goals, ${n(q.gaMisses)} misses (${pct(n(q.gaGoals), n(q.gaMisses))})<br>Players: ${totals.intercepts} intercepts · ${totals.turnovers} turnovers · ${totals.reboundWon}/${totals.reboundWon + totals.reboundMissed} rebounds (${pct(totals.reboundWon, totals.reboundMissed)})</div><button class="quarter-edit" data-edit-quarter="${n(q.quarter)}">✎ Edit quarter</button></div>`;
-      }).join("")}</div>`;
-    }
-
-    function date(value) {
-      try { return new Intl.DateTimeFormat(undefined, {day:"numeric", month:"short", year:"numeric"}).format(new Date(value)); }
-      catch { return "Saved game"; }
-    }
-
-    function result(home, opposition) {
-      const difference = Math.abs(home - opposition);
-      return home === opposition ? "Draw" : home > opposition ? `Win by ${difference}` : `Loss by ${difference}`;
-    }
-
-    function resultLine(home, opposition) {
-      const difference = Math.abs(home - opposition);
-      return home === opposition ? "Result: 🟰 Draw" : home > opposition ? `Result: 👍 Win by ${difference}` : `Result: 👎 Loss by ${difference}`;
-    }
-
-    function renderGames() {
-      const container = $("#savedGames");
-      if (!state.completedGames.length) {
-        container.innerHTML = '<p class="empty">No completed games saved yet.</p>';
-        return;
-      }
-      container.innerHTML = `<div class="list">${state.completedGames.map(game => `<div class="item"><div class="item-top"><span>${date(game.completedAt)}</span><span class="item-score">${n(game.finalHome)} – ${n(game.finalOpposition)}</span></div><div class="item-detail">${game.quarters.length} quarter${game.quarters.length === 1 ? "" : "s"} · ${result(n(game.finalHome), n(game.finalOpposition))}</div><div class="game-actions"><button class="view-report" data-view="${game.id}">View report</button><button class="edit-game" data-edit-game="${game.id}">Edit game</button><button class="delete-game" data-delete="${game.id}" aria-label="Delete saved game">×</button></div></div>`).join("")}</div>`;
-    }
-
-    function stop() {
-      state.isRunning = false;
-      state.lastStartedAt = null;
-      if (timerId) clearInterval(timerId);
-      timerId = null;
-    }
-
-    function sync() {
-      if (!state.isRunning || !state.lastStartedAt) return;
-      const elapsed = Math.floor((Date.now() - state.lastStartedAt) / 1000);
-      if (elapsed < 1) return;
-      state.remainingSeconds = Math.max(0, state.remainingSeconds - elapsed);
-      state.lastStartedAt = Date.now();
-      if (!state.remainingSeconds) {
-        stop();
-        toast("Quarter finished");
-      }
-      render();
-    }
-
-    function start() {
-      if (!state.remainingSeconds) return;
-      state.isRunning = true;
-      state.lastStartedAt = Date.now();
-      timerId = setInterval(sync, 250);
-    }
-
-    function toggle() {
-      if (state.isRunning) {
-        sync();
-        stop();
-      } else {
-        start();
-      }
-      render();
-    }
-
-    function resetQuarter(showToast = true) {
-      stop();
-      state.remainingSeconds = state.durationSeconds;
-      state.gsGoals = 0;
-      state.gsMisses = 0;
-      state.gaGoals = 0;
-      state.gaMisses = 0;
-      state.opposition = 0;
-      state.stats = emptyStats();
-      render();
-      if (showToast) toast(`Quarter ${state.quarter} reset`);
-    }
-
-    function duration(minutes) {
-      minutes = Number(minutes);
-      if (!Number.isFinite(minutes) || minutes < 1 || minutes > 60) {
-        toast("Choose 1 to 60 minutes");
-        return;
-      }
-      stop();
-      state.durationSeconds = Math.round(minutes * 60);
-      state.remainingSeconds = state.durationSeconds;
-      render();
-    }
-
-    function adjust(key, amount) {
-      state[key] = Math.max(0, state[key] + amount);
-      render();
-    }
-
-    function adjustStat(position, key, amount) {
-      if (!POSITIONS.includes(position) || !(key in emptyStat())) return;
-      state.stats[position][key] = Math.max(0, state.stats[position][key] + amount);
-      render();
-    }
-
-    function quarter() {
-      return {
-        quarter:state.quarter,
-        home:state.gsGoals + state.gaGoals,
-        opposition:state.opposition,
-        gsGoals:state.gsGoals,
-        gsMisses:state.gsMisses,
-        gaGoals:state.gaGoals,
-        gaMisses:state.gaMisses,
-        stats:cloneStats(state.stats),
-        playerNames:cloneNames(state.playerNames),
-        savedAt:new Date().toISOString()
-      };
-    }
-
-    function active() {
-      const statsRecorded = POSITIONS.some(position => Object.values(state.stats[position]).some(value => n(value) > 0));
-      return state.gsGoals + state.gsMisses + state.gaGoals + state.gaMisses + state.opposition > 0 || statsRecorded || state.remainingSeconds !== state.durationSeconds;
-    }
-
-    function upsert(records, q) {
-      records = records.map(record => ({...record}));
-      const index = records.findIndex(record => n(record.quarter) === n(q.quarter));
-      if (index >= 0) records[index] = q;
-      else records.push(q);
-      return records.sort((left, right) => n(left.quarter) - n(right.quarter));
-    }
-
-    function saveQuarter() {
-      stop();
-      state.history = upsert(state.history, quarter());
-      const savedQuarter = state.quarter++;
-      resetQuarter(false);
-      closeMenu();
-      toast(`Quarter ${savedQuarter} saved`);
-    }
-
-    function finalQuarters() {
-      let records = state.history.map(record => normaliseQuarter(record, state.playerNames));
-      if (active()) records = upsert(records, quarter());
-      return records;
-    }
-
-    function makeGame(quarters, id, namesFallback) {
-      const totals = quarters.reduce((sum, q) => {
-        sum.home += n(q.home);
-        sum.opposition += n(q.opposition);
-        sum.gsGoals += n(q.gsGoals);
-        sum.gsMisses += n(q.gsMisses);
-        sum.gaGoals += n(q.gaGoals);
-        sum.gaMisses += n(q.gaMisses);
-        POSITIONS.forEach(position => {
-          const item = normaliseStats(q.stats)[position];
-          Object.keys(emptyStat()).forEach(key => sum.stats[position][key] += item[key]);
-        });
-        return sum;
-      }, {home:0, opposition:0, gsGoals:0, gsMisses:0, gaGoals:0, gaMisses:0, stats:emptyStats()});
-      const latestNames = quarters.length ? quarters[quarters.length - 1].playerNames : namesFallback;
-      return {
-        id,
-        completedAt:new Date().toISOString(),
-        quarters,
-        finalHome:totals.home,
-        finalOpposition:totals.opposition,
-        gsGoals:totals.gsGoals,
-        gsMisses:totals.gsMisses,
-        gaGoals:totals.gaGoals,
-        gaMisses:totals.gaMisses,
-        stats:totals.stats,
-        playerNames:normaliseNames(latestNames || namesFallback)
-      };
-    }
-
-    function normaliseGame(game, namesFallback) {
-      const quarters = Array.isArray(game.quarters) ? game.quarters.map(q => normaliseQuarter(q, game.playerNames || namesFallback)) : [];
-      const rebuilt = makeGame(quarters, game.id || `game-${Date.now()}`, game.playerNames || namesFallback);
-      rebuilt.completedAt = game.completedAt || rebuilt.completedAt;
-      return rebuilt;
-    }
-
-    function recalcGame(game) {
-      const rebuilt = makeGame(game.quarters, game.id, game.playerNames || state.playerNames);
-      rebuilt.completedAt = game.completedAt;
-      return rebuilt;
-    }
-
-    function finish() {
-      stop();
-      if (!state.history.length && !active()) {
-        toast("Record some game activity first");
-        return;
-      }
-      const quarters = finalQuarters();
-      const id = state.savedGameId || `game-${Date.now()}`;
-      const game = makeGame(quarters, id, state.playerNames);
-      const index = state.completedGames.findIndex(record => record.id === id);
-      if (index >= 0) state.completedGames[index] = game;
-      else state.completedGames.unshift(game);
-      state.savedGameId = id;
-      state.history = quarters;
-      render();
-      closeMenu();
-      openReport(id);
-    }
-
-    function playerStatLine(position, stats) {
-      const item = normaliseStats(stats)[position];
-      const rebounds = REBOUND_POSITIONS.has(position) ? ` · REB ${item.reboundWon}/${item.reboundWon + item.reboundMissed} (${pct(item.reboundWon, item.reboundMissed)})` : "";
-      return `${position}: INT ${item.intercepts} · TO ${item.turnovers}${rebounds}`;
-    }
-
-    function report(game) {
-      const home = n(game.finalHome);
-      const opposition = n(game.finalOpposition);
-      const gsGoals = n(game.gsGoals);
-      const gsMisses = n(game.gsMisses);
-      const gaGoals = n(game.gaGoals);
-      const gaMisses = n(game.gaMisses);
-      const totalGoals = gsGoals + gaGoals;
-      const totalMisses = gsMisses + gaMisses;
-      const quarters = game.quarters.map(q => {
-        const qGsGoals = n(q.gsGoals);
-        const qGsMisses = n(q.gsMisses);
-        const qGaGoals = n(q.gaGoals);
-        const qGaMisses = n(q.gaMisses);
-        const playerLines = POSITIONS.map(position => playerStatLine(position, q.stats)).join("\n");
-        return `Q${n(q.quarter)}  Our Team ${n(q.home)} – ${n(q.opposition)} Opposition\n🎯 GS: ${qGsGoals}/${qGsGoals + qGsMisses} - ${pct(qGsGoals, qGsMisses)}\n🎯 GA: ${qGaGoals}/${qGaGoals + qGaMisses} - ${pct(qGaGoals, qGaMisses)}\n${playerLines}`;
-      }).join("\n\n");
-      const matchPlayerLines = POSITIONS.map(position => playerStatLine(position, game.stats)).join("\n");
-      return `🏁 **FINAL SCORE** 🏁\nHome ${home} - Away ${opposition}\n${resultLine(home, opposition)}\n\n⏱️ **QUARTERS**\n${quarters}\n\n🏐 **SHOOTING — MATCH TOTALS**\n🎯 GS: ${gsGoals}/${gsGoals + gsMisses} goals  •  ${pct(gsGoals, gsMisses)}  •  ${gsMisses} missed\n🎯 GA: ${gaGoals}/${gaGoals + gaMisses} goals  •  ${pct(gaGoals, gaMisses)}  •  ${gaMisses} missed\n👥 TOTAL: ${totalGoals}/${totalGoals + totalMisses} goals  •  ${pct(totalGoals, totalMisses)}  •  ${totalMisses} missed\n\n📊 **PLAYER STATS — MATCH TOTALS**\n${matchPlayerLines}`;
-    }
-
-    function openReport(id) {
-      const game = state.completedGames.find(record => record.id === id);
-      if (!game) return;
-      $("#reportScore").textContent = `Final score: ${n(game.finalHome)} – ${n(game.finalOpposition)}`;
-      $("#reportText").value = report(game);
-      $("#reportBg").classList.add("open");
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeReport() {
-      $("#reportBg").classList.remove("open");
-      unlock();
-    }
-
-    async function copy() {
-      const reportArea = $("#reportText");
-      try {
-        if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(reportArea.value);
-        else {
-          reportArea.select();
-          document.execCommand("copy");
-        }
-        toast("Report copied — ready to share");
-      } catch {
-        reportArea.select();
-        toast("Report selected — choose Copy");
-      }
-    }
-
-    function draftFrom(q) {
-      const normalised = normaliseQuarter(q, state.playerNames);
-      return {
-        quarter:normalised.quarter,
-        gsGoals:normalised.gsGoals,
-        gsMisses:normalised.gsMisses,
-        gaGoals:normalised.gaGoals,
-        gaMisses:normalised.gaMisses,
-        opposition:normalised.opposition,
-        stats:cloneStats(normalised.stats),
-        playerNames:cloneNames(normalised.playerNames),
-        savedAt:normalised.savedAt
-      };
-    }
-
-    function editSource() {
-      if (!edit) return [];
-      if (edit.kind === "current") return state.history;
-      const game = state.completedGames.find(record => record.id === edit.gameId);
-      return game ? game.quarters : [];
-    }
-
-    function loadEditQuarter(quarterNumber) {
-      const q = editSource().find(record => n(record.quarter) === n(quarterNumber));
-      if (!q) return;
-      edit.draft = draftFrom(q);
-      renderEditor();
-    }
-
-    function openEditor(kind, quarterNumber, gameId = null) {
-      edit = {kind, gameId, draft:null};
-      const source = editSource();
-      if (!source.length) return;
-      const select = $("#editQuarterSelect");
-      select.innerHTML = source.map(q => `<option value="${n(q.quarter)}">Quarter ${n(q.quarter)}</option>`).join("");
-      select.style.display = kind === "game" ? "block" : "none";
-      $("#editContext").textContent = kind === "game" ? "Completed game — choose a quarter to correct" : "Current game — saved quarter";
-      loadEditQuarter(quarterNumber || n(source[0].quarter));
-      select.value = String(edit.draft.quarter);
-      $("#editBg").classList.add("open");
-      document.body.style.overflow = "hidden";
-    }
-
-    function editCounter(position, key, label, value) {
-      return `<div><span class="counter-label">${label}</span><div class="counter"><button data-edit-stat="${key}" data-edit-position="${position}" data-delta="-1">−</button><strong>${value}</strong><button data-edit-stat="${key}" data-edit-position="${position}" data-delta="1">+</button></div></div>`;
-    }
-
-    function renderEditor() {
-      const draft = edit.draft;
-      const goals = draft.gsGoals + draft.gaGoals;
-      $("#editScore").textContent = `Our Team ${goals} – ${draft.opposition} Opposition`;
-      $("#editGsGoals").textContent = draft.gsGoals;
-      $("#editGsMisses").textContent = draft.gsMisses;
-      $("#editGaGoals").textContent = draft.gaGoals;
-      $("#editGaMisses").textContent = draft.gaMisses;
-      $("#editOpposition").textContent = draft.opposition;
-      $("#editQuarterSelect").value = String(draft.quarter);
-      $("#editPlayerStats").innerHTML = POSITIONS.map(position => {
-        const item = draft.stats[position];
-        const reboundEditor = REBOUND_POSITIONS.has(position) ? `<div class="edit-rebound-summary">Rebound percentage: ${pct(item.reboundWon, item.reboundMissed)}</div><div class="edit-pair">${editCounter(position, "reboundWon", "Rebound won", item.reboundWon)}${editCounter(position, "reboundMissed", "Rebound missed", item.reboundMissed)}</div>` : "";
-        return `<div class="edit-group"><div class="edit-player-head"><h3>${position}</h3></div><div class="edit-pair">${editCounter(position, "intercepts", "Intercepts", item.intercepts)}${editCounter(position, "turnovers", "Turnovers", item.turnovers)}</div>${reboundEditor}</div>`;
-      }).join("");
-    }
-
-    function closeEditor() {
-      $("#editBg").classList.remove("open");
-      edit = null;
-      unlock();
-    }
-
-    function correctedQuarter() {
-      const draft = edit.draft;
-      return {
-        quarter:draft.quarter,
-        home:draft.gsGoals + draft.gaGoals,
-        opposition:draft.opposition,
-        gsGoals:draft.gsGoals,
-        gsMisses:draft.gsMisses,
-        gaGoals:draft.gaGoals,
-        gaMisses:draft.gaMisses,
-        stats:cloneStats(draft.stats),
-        playerNames:cloneNames(draft.playerNames),
-        savedAt:draft.savedAt
-      };
-    }
-
-    function syncLive(q) {
-      if (n(state.quarter) !== n(q.quarter)) return;
-      state.gsGoals = n(q.gsGoals);
-      state.gsMisses = n(q.gsMisses);
-      state.gaGoals = n(q.gaGoals);
-      state.gaMisses = n(q.gaMisses);
-      state.opposition = n(q.opposition);
-      state.stats = cloneStats(q.stats);
-      state.playerNames = cloneNames(q.playerNames);
-    }
-
-    function saveCorrection() {
-      if (!edit) return;
-      const corrected = correctedQuarter();
-      if (edit.kind === "current") {
-        state.history = upsert(state.history, corrected);
-        syncLive(corrected);
-        if (state.savedGameId) {
-          const index = state.completedGames.findIndex(record => record.id === state.savedGameId);
-          if (index >= 0) {
-            state.completedGames[index].quarters = upsert(state.completedGames[index].quarters, corrected);
-            state.completedGames[index] = recalcGame(state.completedGames[index]);
-          }
-        }
-      } else {
-        const index = state.completedGames.findIndex(record => record.id === edit.gameId);
-        if (index < 0) return;
-        state.completedGames[index].quarters = upsert(state.completedGames[index].quarters, corrected);
-        state.completedGames[index] = recalcGame(state.completedGames[index]);
-        if (state.savedGameId === edit.gameId) {
-          state.history = state.completedGames[index].quarters.map(record => normaliseQuarter(record, state.playerNames));
-          syncLive(corrected);
-        }
-      }
-      render();
-      closeEditor();
-      toast("Scores, player stats and report updated");
-    }
-
-    function deleteGame(id) {
-      const game = state.completedGames.find(record => record.id === id);
-      if (!game || !confirm(`Delete the saved game ${n(game.finalHome)} – ${n(game.finalOpposition)}?\n\nThis cannot be undone.`)) return;
-      state.completedGames = state.completedGames.filter(record => record.id !== id);
-      if (state.savedGameId === id) state.savedGameId = null;
-      render();
-      toast("Saved game deleted");
-    }
-
-    function newGame() {
-      if (!confirm("Start a new game? Current scores, player stats and quarters will be cleared. Completed games will remain.")) return;
-      stop();
-      const previous = state;
-      state = freshState();
-      state.durationSeconds = previous.durationSeconds;
-      state.remainingSeconds = previous.durationSeconds;
-      state.completedGames = previous.completedGames;
-      state.playerNames = cloneNames(previous.playerNames);
-      render();
-      closeMenu();
-    }
-
-    function switchTab(tab) {
-      state.activeTab = tab === "stats" ? "stats" : "score";
-      render();
-      window.scrollTo({top:0, behavior:"smooth"});
-    }
-
-    function openMenu() {
-      $("#drawer").classList.add("open");
-      $("#backdrop").classList.add("open");
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeMenu() {
-      $("#drawer").classList.remove("open");
-      $("#backdrop").classList.remove("open");
-      unlock();
-    }
-
-    function unlock() {
-      if (!$("#reportBg").classList.contains("open") && !$("#editBg").classList.contains("open") && !$("#drawer").classList.contains("open")) document.body.style.overflow = "";
-    }
-
-    function toast(message) {
-      clearTimeout(toastId);
-      $("#toast").textContent = message;
-      $("#toast").classList.add("show");
-      toastId = setTimeout(() => $("#toast").classList.remove("show"), 2200);
-    }
-
-    let state = load();
-    let timerId = null;
-    let toastId = null;
-    let edit = null;
-
-    const acts = {gsG:["gsGoals",1], gsM:["gsMisses",1], gaG:["gaGoals",1], gaM:["gaMisses",1], ugsG:["gsGoals",-1], ugsM:["gsMisses",-1], ugaG:["gaGoals",-1], ugaM:["gaMisses",-1]};
-    $$('[data-act]').forEach(button => button.onclick = () => adjust(...acts[button.dataset.act]));
-    $$('[data-tab]').forEach(button => button.onclick = () => switchTab(button.dataset.tab));
-    $("#statsGrid").onclick = event => {
-      const add = event.target.closest('[data-stat-add]');
-      const undo = event.target.closest('[data-stat-undo]');
-      const button = add || undo;
-      if (button) adjustStat(button.dataset.position, button.dataset.statKey, add ? 1 : -1);
-    };
-    $("#scoreReboundGrid").onclick = event => {
-      const add = event.target.closest('[data-score-rebound-add]');
-      const undo = event.target.closest('[data-score-rebound-undo]');
-      const button = add || undo;
-      if (button) adjustStat(button.dataset.position, button.dataset.statKey, add ? 1 : -1);
-    };
-    $("#timerToggle").onclick = toggle;
-    $("#timerReset").onclick = () => { stop(); state.remainingSeconds = state.durationSeconds; render(); };
-    $("#oppAdd").onclick = () => adjust("opposition", 1);
-    $("#oppUndo").onclick = () => adjust("opposition", -1);
-    $("#menuOpen").onclick = openMenu;
-    $("#menuClose").onclick = closeMenu;
-    $("#backdrop").onclick = closeMenu;
-    $$('[data-min]').forEach(button => button.onclick = () => duration(button.dataset.min));
-    $("#setCustom").onclick = () => duration($("#customMinutes").value);
-    $("#saveQuarter").onclick = saveQuarter;
-    $("#resetQuarter").onclick = () => { resetQuarter(); closeMenu(); };
-    $("#addMinute").onclick = () => { state.remainingSeconds += 60; render(); };
-    $("#finishGame").onclick = finish;
-    $("#newGame").onclick = newGame;
-    $("#quarterHistory").onclick = event => {
-      const button = event.target.closest('[data-edit-quarter]');
-      if (button) { closeMenu(); openEditor("current", button.dataset.editQuarter); }
-    };
-    $("#savedGames").onclick = event => {
-      const view = event.target.closest('[data-view]');
-      const editGame = event.target.closest('[data-edit-game]');
-      const remove = event.target.closest('[data-delete]');
-      if (view) { closeMenu(); openReport(view.dataset.view); }
-      else if (editGame) { closeMenu(); openEditor("game", null, editGame.dataset.editGame); }
-      else if (remove) deleteGame(remove.dataset.delete);
-    };
-    $("#editQuarterSelect").onchange = event => loadEditQuarter(event.target.value);
-    $("#editBg").onclick = event => {
-      const scoreButton = event.target.closest('[data-edit]');
-      const statButton = event.target.closest('[data-edit-stat]');
-      if (scoreButton && edit) {
-        const key = scoreButton.dataset.edit;
-        edit.draft[key] = Math.max(0, edit.draft[key] + n(scoreButton.dataset.delta));
-        renderEditor();
-      } else if (statButton && edit) {
-        const position = statButton.dataset.editPosition;
-        const key = statButton.dataset.editStat;
-        edit.draft.stats[position][key] = Math.max(0, edit.draft.stats[position][key] + n(statButton.dataset.delta));
-        renderEditor();
-      } else if (event.target === $("#editBg")) closeEditor();
-    };
-    $("#saveEdit").onclick = saveCorrection;
-    $("#editClose").onclick = closeEditor;
-    $("#editCancel").onclick = closeEditor;
-    $("#copyReport").onclick = copy;
-    $("#reportClose").onclick = closeReport;
-    $("#reportDone").onclick = closeReport;
-    $("#reportBg").onclick = event => { if (event.target === $("#reportBg")) closeReport(); };
-    document.onkeydown = event => {
-      if (event.key === "Escape") {
-        if ($("#editBg").classList.contains("open")) closeEditor();
-        else if ($("#reportBg").classList.contains("open")) closeReport();
-        else closeMenu();
-      }
-    };
-
-    if (state.isRunning) start();
-    render();
+    const KEY="netball-score-tracker-v3",POSITIONS=["GS","GA","WA","C","WD","GD","GK"],REBOUND_POSITIONS=new Set(["GS","GA","GD","GK"]),$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+    const emptyStat=()=>({intercepts:0,turnovers:0,reboundWon:0,reboundMissed:0});
+    const emptyStats=()=>Object.fromEntries(POSITIONS.map(p=>[p,emptyStat()]));
+    const fresh=()=>({quarter:1,durationSeconds:600,remainingSeconds:600,isRunning:false,lastStartedAt:null,gsGoals:0,gsMisses:0,gaGoals:0,gaMisses:0,opposition:0,stats:emptyStats(),activeTab:"score",history:[],completedGames:[],savedGameId:null});
+    const n=v=>Number.isFinite(Number(v))?Number(v):0;
+    const pct=(a,b)=>a+b?`${Math.round(a/(a+b)*100)}%`:"—";
+    const time=s=>{s=Math.max(0,Math.floor(s));return`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`};
+    function normStats(value){const stats=emptyStats();if(value&&typeof value==="object")POSITIONS.forEach(p=>{const x=value[p]||{};stats[p]={intercepts:Math.max(0,n(x.intercepts)),turnovers:Math.max(0,n(x.turnovers)),reboundWon:Math.max(0,n(x.reboundWon)),reboundMissed:Math.max(0,n(x.reboundMissed))}});return stats}
+    function normQuarter(q={}){return{...q,quarter:Math.max(1,n(q.quarter)||1),home:Math.max(0,n(q.home)),opposition:Math.max(0,n(q.opposition)),gsGoals:Math.max(0,n(q.gsGoals)),gsMisses:Math.max(0,n(q.gsMisses)),gaGoals:Math.max(0,n(q.gaGoals)),gaMisses:Math.max(0,n(q.gaMisses)),stats:normStats(q.stats),savedAt:q.savedAt||new Date().toISOString()}}
+    function makeGame(quarters,id){const totals=quarters.reduce((t,q)=>{t.home+=n(q.home);t.opposition+=n(q.opposition);t.gsGoals+=n(q.gsGoals);t.gsMisses+=n(q.gsMisses);t.gaGoals+=n(q.gaGoals);t.gaMisses+=n(q.gaMisses);POSITIONS.forEach(p=>Object.keys(emptyStat()).forEach(k=>t.stats[p][k]+=normStats(q.stats)[p][k]));return t},{home:0,opposition:0,gsGoals:0,gsMisses:0,gaGoals:0,gaMisses:0,stats:emptyStats()});return{id,completedAt:new Date().toISOString(),quarters,finalHome:totals.home,finalOpposition:totals.opposition,gsGoals:totals.gsGoals,gsMisses:totals.gsMisses,gaGoals:totals.gaGoals,gaMisses:totals.gaMisses,stats:totals.stats}}
+    function normGame(g={}){const quarters=Array.isArray(g.quarters)?g.quarters.map(normQuarter):[],rebuilt=makeGame(quarters,g.id||`game-${Date.now()}`);rebuilt.completedAt=g.completedAt||rebuilt.completedAt;return rebuilt}
+    function load(){const base=fresh();try{const x=JSON.parse(localStorage.getItem(KEY));if(!x)return base;const s={...base,...x};s.stats=normStats(x.stats);s.activeTab=x.activeTab==="stats"?"stats":"score";s.history=Array.isArray(x.history)?x.history.map(normQuarter):[];s.completedGames=Array.isArray(x.completedGames)?x.completedGames.map(normGame):[];if(s.isRunning&&s.lastStartedAt){const elapsed=Math.floor((Date.now()-s.lastStartedAt)/1000);s.remainingSeconds=Math.max(0,s.remainingSeconds-elapsed);s.lastStartedAt=s.remainingSeconds?Date.now():null;s.isRunning=!!s.remainingSeconds}return s}catch{return base}}
+    function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
+    function totalStats(stats){const result=emptyStat(),normal=normStats(stats);POSITIONS.forEach(p=>Object.keys(result).forEach(k=>result[k]+=normal[p][k]));return result}
+    function statCard(p){return`<article class="card stat-player-card"><div class="player-head"><div class="position-badge">${p}</div></div><div class="event-grid">${eventControl(p,"intercepts","Intercept +","intercept")}${eventControl(p,"turnovers","Turnover +","turnover")}</div></article>`}
+    function eventControl(p,key,label,cls){return`<div class="event-control"><button class="event-add ${cls}" data-stat-add data-position="${p}" data-stat-key="${key}"><span>${label}</span><strong data-stat-count="${p}-${key}">0</strong></button><button class="event-undo" data-stat-undo data-position="${p}" data-stat-key="${key}">↶ Undo</button></div>`}
+    function render(){const goals=state.gsGoals+state.gaGoals,misses=state.gsMisses+state.gaMisses;$("#quarterLabel").textContent=`Q${state.quarter}`;$("#statsQuarter").textContent=`Quarter ${state.quarter}`;$("#timerDisplay").textContent=time(state.remainingSeconds);$("#homeScore").textContent=goals;$("#oppositionScore").textContent=state.opposition;$("#gsGoals").textContent=state.gsGoals;$("#gsMisses").textContent=state.gsMisses;$("#gsPct").textContent=pct(state.gsGoals,state.gsMisses);$("#gaGoals").textContent=state.gaGoals;$("#gaMisses").textContent=state.gaMisses;$("#gaPct").textContent=pct(state.gaGoals,state.gaMisses);$("#allGoals").textContent=goals;$("#allAttempts").textContent=goals+misses;$("#allPct").textContent=pct(goals,misses);$("#timerStatus").textContent=state.remainingSeconds===0?"Quarter finished":state.isRunning?"Timer running":state.remainingSeconds<state.durationSeconds?"Timer paused":`Ready · ${state.durationSeconds/60} min quarter`;$("#timerDot").classList.toggle("running",state.isRunning);$("#timerToggle").textContent=state.isRunning?"Ⅱ Pause":"▶ Start";$("#timerToggle").classList.toggle("paused",!state.isRunning&&state.remainingSeconds<state.durationSeconds&&state.remainingSeconds>0);$("#timerToggle").disabled=!state.remainingSeconds;$$('[data-min]').forEach(b=>b.classList.toggle("active",n(b.dataset.min)*60===state.durationSeconds));$("#finishGame").textContent=state.savedGameId?"Update saved game & report":"Save game & create report";renderTab();renderStats();renderQuarters();renderGames();save()}
+    function renderTab(){const stats=state.activeTab==="stats";$("#scoreScreen").hidden=stats;$("#statsScreen").hidden=!stats;$("#scoreTab").setAttribute("aria-selected",String(!stats));$("#statsTab").setAttribute("aria-selected",String(stats));$("#appTitle").textContent=stats?"Player Statistics":"Netball Score Tracker"}
+    function renderStats(){const grid=$("#statsGrid");if(!grid.children.length)grid.innerHTML=POSITIONS.map(statCard).join("");POSITIONS.forEach(p=>{const item=state.stats[p];["intercepts","turnovers"].forEach(k=>{const el=grid.querySelector(`[data-stat-count="${p}-${k}"]`);if(el)el.textContent=item[k]});["reboundWon","reboundMissed"].forEach(k=>{const el=document.querySelector(`[data-score-rebound-count="${p}-${k}"]`);if(el)el.textContent=item[k]});const rate=document.querySelector(`[data-score-rebound-pct="${p}"]`);if(rate)rate.textContent=pct(item.reboundWon,item.reboundMissed)})}
+    function renderQuarters(){const box=$("#quarterHistory");if(!state.history.length){box.innerHTML='<p class="empty">No quarters saved yet.</p>';return}box.innerHTML=`<div class="list">${state.history.map(q=>{const t=totalStats(q.stats);return`<div class="item"><div class="item-top"><span>Quarter ${q.quarter}</span><span class="item-score">${q.home} – ${q.opposition}</span></div><div class="item-detail">GS: ${q.gsGoals} goals, ${q.gsMisses} misses (${pct(q.gsGoals,q.gsMisses)})<br>GA: ${q.gaGoals} goals, ${q.gaMisses} misses (${pct(q.gaGoals,q.gaMisses)})<br>Players: ${t.intercepts} intercepts · ${t.turnovers} turnovers · ${t.reboundWon}/${t.reboundWon+t.reboundMissed} rebounds (${pct(t.reboundWon,t.reboundMissed)})</div><button class="quarter-edit" data-edit-quarter="${q.quarter}">✎ Edit quarter</button></div>`}).join("")}</div>`}
+    function formatDate(v){try{return new Intl.DateTimeFormat(undefined,{day:"numeric",month:"short",year:"numeric"}).format(new Date(v))}catch{return"Saved game"}}
+    function result(h,o){const d=Math.abs(h-o);return h===o?"Draw":h>o?`Win by ${d}`:`Loss by ${d}`}
+    function resultLine(h,o){const d=Math.abs(h-o);return h===o?"Result: 🟰 Draw":h>o?`Result: 👍 Win by ${d}`:`Result: 👎 Loss by ${d}`}
+    function renderGames(){const box=$("#savedGames");if(!state.completedGames.length){box.innerHTML='<p class="empty">No completed games saved yet.</p>';return}box.innerHTML=`<div class="list">${state.completedGames.map(g=>`<div class="item"><div class="item-top"><span>${formatDate(g.completedAt)}</span><span class="item-score">${g.finalHome} – ${g.finalOpposition}</span></div><div class="item-detail">${g.quarters.length} quarter${g.quarters.length===1?"":"s"} · ${result(g.finalHome,g.finalOpposition)}</div><div class="game-actions"><button class="view-report" data-view="${g.id}">View report</button><button class="edit-game" data-edit-game="${g.id}">Edit game</button><button class="delete-game" data-delete="${g.id}">×</button></div></div>`).join("")}</div>`}
+    function stop(){state.isRunning=false;state.lastStartedAt=null;if(timerId)clearInterval(timerId);timerId=null}
+    function sync(){if(!state.isRunning||!state.lastStartedAt)return;const elapsed=Math.floor((Date.now()-state.lastStartedAt)/1000);if(elapsed<1)return;state.remainingSeconds=Math.max(0,state.remainingSeconds-elapsed);state.lastStartedAt=Date.now();if(!state.remainingSeconds){stop();toast("Quarter finished")}render()}
+    function start(){if(!state.remainingSeconds)return;state.isRunning=true;state.lastStartedAt=Date.now();timerId=setInterval(sync,250)}
+    function toggle(){if(state.isRunning){sync();stop()}else start();render()}
+    function resetQuarter(show=true){stop();state.remainingSeconds=state.durationSeconds;state.gsGoals=state.gsMisses=state.gaGoals=state.gaMisses=state.opposition=0;state.stats=emptyStats();render();if(show)toast(`Quarter ${state.quarter} reset`)}
+    function setDuration(minutes){minutes=Number(minutes);if(!Number.isFinite(minutes)||minutes<1||minutes>60){toast("Choose 1 to 60 minutes");return}stop();state.durationSeconds=Math.round(minutes*60);state.remainingSeconds=state.durationSeconds;render()}
+    function adjust(key,amount){state[key]=Math.max(0,state[key]+amount);render()}
+    function adjustStat(p,key,amount){if(!POSITIONS.includes(p)||!(key in emptyStat()))return;state.stats[p][key]=Math.max(0,state.stats[p][key]+amount);render()}
+    function currentQuarter(){return{quarter:state.quarter,home:state.gsGoals+state.gaGoals,opposition:state.opposition,gsGoals:state.gsGoals,gsMisses:state.gsMisses,gaGoals:state.gaGoals,gaMisses:state.gaMisses,stats:normStats(state.stats),savedAt:new Date().toISOString()}}
+    function hasActivity(){return state.gsGoals+state.gsMisses+state.gaGoals+state.gaMisses+state.opposition>0||POSITIONS.some(p=>Object.values(state.stats[p]).some(v=>v>0))||state.remainingSeconds!==state.durationSeconds}
+    function upsert(records,q){records=records.map(normQuarter);const i=records.findIndex(x=>x.quarter===q.quarter);if(i>=0)records[i]=q;else records.push(q);return records.sort((a,b)=>a.quarter-b.quarter)}
+    function saveQuarter(){stop();state.history=upsert(state.history,currentQuarter());const q=state.quarter++;resetQuarter(false);closeMenu();toast(`Quarter ${q} saved`)}
+    function finalQuarters(){let records=state.history.map(normQuarter);if(hasActivity())records=upsert(records,currentQuarter());return records}
+    function finish(){stop();if(!state.history.length&&!hasActivity()){toast("Record some game activity first");return}const quarters=finalQuarters(),id=state.savedGameId||`game-${Date.now()}`,game=makeGame(quarters,id),i=state.completedGames.findIndex(g=>g.id===id);if(i>=0){game.completedAt=state.completedGames[i].completedAt;state.completedGames[i]=game}else state.completedGames.unshift(game);state.savedGameId=id;state.history=quarters;render();closeMenu();openReport(id)}
+    function statLine(p,stats){const x=normStats(stats)[p],reb=REBOUND_POSITIONS.has(p)?` · REB ${x.reboundWon}/${x.reboundWon+x.reboundMissed} (${pct(x.reboundWon,x.reboundMissed)})`:"";return`${p}: INT ${x.intercepts} · TO ${x.turnovers}${reb}`}
+    function report(g){const quarterText=g.quarters.map(q=>`Q${q.quarter}  Our Team ${q.home} – ${q.opposition} Opposition\n🎯 GS: ${q.gsGoals}/${q.gsGoals+q.gsMisses} - ${pct(q.gsGoals,q.gsMisses)}\n🎯 GA: ${q.gaGoals}/${q.gaGoals+q.gaMisses} - ${pct(q.gaGoals,q.gaMisses)}\n${POSITIONS.map(p=>statLine(p,q.stats)).join("\n")}`).join("\n\n"),tg=g.gsGoals+g.gaGoals,tm=g.gsMisses+g.gaMisses;return`🏁 **FINAL SCORE** 🏁\nHome ${g.finalHome} - Away ${g.finalOpposition}\n${resultLine(g.finalHome,g.finalOpposition)}\n\n⏱️ **QUARTERS**\n${quarterText}\n\n🏐 **SHOOTING — MATCH TOTALS**\n🎯 GS: ${g.gsGoals}/${g.gsGoals+g.gsMisses} goals  •  ${pct(g.gsGoals,g.gsMisses)}  •  ${g.gsMisses} missed\n🎯 GA: ${g.gaGoals}/${g.gaGoals+g.gaMisses} goals  •  ${pct(g.gaGoals,g.gaMisses)}  •  ${g.gaMisses} missed\n👥 TOTAL: ${tg}/${tg+tm} goals  •  ${pct(tg,tm)}  •  ${tm} missed\n\n📊 **PLAYER STATS — MATCH TOTALS**\n${POSITIONS.map(p=>statLine(p,g.stats)).join("\n")}`}
+    function openReport(id){const g=state.completedGames.find(x=>x.id===id);if(!g)return;$("#reportScore").textContent=`Final score: ${g.finalHome} – ${g.finalOpposition}`;$("#reportText").value=report(g);$("#reportBg").classList.add("open");document.body.style.overflow="hidden"}
+    function closeReport(){$("#reportBg").classList.remove("open");unlock()}
+    async function copyReport(){const area=$("#reportText");try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(area.value);else{area.select();document.execCommand("copy")}toast("Report copied — ready to share")}catch{area.select();toast("Report selected — choose Copy")}}
+    function editSource(){if(!edit)return[];if(edit.kind==="current")return state.history;const g=state.completedGames.find(x=>x.id===edit.gameId);return g?g.quarters:[]}
+    function draftFrom(q){q=normQuarter(q);return{quarter:q.quarter,gsGoals:q.gsGoals,gsMisses:q.gsMisses,gaGoals:q.gaGoals,gaMisses:q.gaMisses,opposition:q.opposition,stats:normStats(q.stats),savedAt:q.savedAt}}
+    function loadEditQuarter(qn){const q=editSource().find(x=>x.quarter===n(qn));if(!q)return;edit.draft=draftFrom(q);renderEditor()}
+    function openEditor(kind,qn,gameId=null){edit={kind,gameId,draft:null};const source=editSource();if(!source.length)return;const select=$("#editQuarterSelect");select.innerHTML=source.map(q=>`<option value="${q.quarter}">Quarter ${q.quarter}</option>`).join("");select.style.display=kind==="game"?"block":"none";$("#editContext").textContent=kind==="game"?"Completed game — choose a quarter to correct":"Current game — saved quarter";loadEditQuarter(qn||source[0].quarter);select.value=String(edit.draft.quarter);$("#editBg").classList.add("open");document.body.style.overflow="hidden"}
+    function counter(p,key,label,value){return`<div><span class="counter-label">${label}</span><div class="counter"><button data-edit-stat="${key}" data-edit-position="${p}" data-delta="-1">−</button><strong>${value}</strong><button data-edit-stat="${key}" data-edit-position="${p}" data-delta="1">+</button></div></div>`}
+    function renderEditor(){const d=edit.draft;$("#editScore").textContent=`Our Team ${d.gsGoals+d.gaGoals} – ${d.opposition} Opposition`;$("#editGsGoals").textContent=d.gsGoals;$("#editGsMisses").textContent=d.gsMisses;$("#editGaGoals").textContent=d.gaGoals;$("#editGaMisses").textContent=d.gaMisses;$("#editOpposition").textContent=d.opposition;$("#editQuarterSelect").value=String(d.quarter);$("#editPlayerStats").innerHTML=POSITIONS.map(p=>{const x=d.stats[p],reb=REBOUND_POSITIONS.has(p)?`<div class="edit-rebound-summary">Rebound rate: ${pct(x.reboundWon,x.reboundMissed)}</div><div class="edit-pair">${counter(p,"reboundWon","Rebound won",x.reboundWon)}${counter(p,"reboundMissed","Rebound missed",x.reboundMissed)}</div>`:"";return`<div class="edit-group"><h3>${p}</h3><div class="edit-pair">${counter(p,"intercepts","Intercepts",x.intercepts)}${counter(p,"turnovers","Turnovers",x.turnovers)}</div>${reb}</div>`}).join("")}
+    function closeEditor(){$("#editBg").classList.remove("open");edit=null;unlock()}
+    function corrected(){const d=edit.draft;return{quarter:d.quarter,home:d.gsGoals+d.gaGoals,opposition:d.opposition,gsGoals:d.gsGoals,gsMisses:d.gsMisses,gaGoals:d.gaGoals,gaMisses:d.gaMisses,stats:normStats(d.stats),savedAt:d.savedAt}}
+    function syncLive(q){if(state.quarter!==q.quarter)return;state.gsGoals=q.gsGoals;state.gsMisses=q.gsMisses;state.gaGoals=q.gaGoals;state.gaMisses=q.gaMisses;state.opposition=q.opposition;state.stats=normStats(q.stats)}
+    function recalc(g){const x=makeGame(g.quarters,g.id);x.completedAt=g.completedAt;return x}
+    function saveCorrection(){if(!edit)return;const q=corrected();if(edit.kind==="current"){state.history=upsert(state.history,q);syncLive(q);if(state.savedGameId){const i=state.completedGames.findIndex(g=>g.id===state.savedGameId);if(i>=0){state.completedGames[i].quarters=upsert(state.completedGames[i].quarters,q);state.completedGames[i]=recalc(state.completedGames[i])}}}else{const i=state.completedGames.findIndex(g=>g.id===edit.gameId);if(i<0)return;state.completedGames[i].quarters=upsert(state.completedGames[i].quarters,q);state.completedGames[i]=recalc(state.completedGames[i]);if(state.savedGameId===edit.gameId){state.history=state.completedGames[i].quarters.map(normQuarter);syncLive(q)}}render();closeEditor();toast("Scores, player stats and report updated")}
+    function deleteGame(id){const g=state.completedGames.find(x=>x.id===id);if(!g||!confirm(`Delete the saved game ${g.finalHome} – ${g.finalOpposition}?\n\nThis cannot be undone.`))return;state.completedGames=state.completedGames.filter(x=>x.id!==id);if(state.savedGameId===id)state.savedGameId=null;render();toast("Saved game deleted")}
+    function newGame(){if(!confirm("Start a new game? Current scores, statistics and quarters will be cleared. Completed games will remain."))return;stop();const duration=state.durationSeconds,games=state.completedGames;state=fresh();state.durationSeconds=duration;state.remainingSeconds=duration;state.completedGames=games;render();closeMenu()}
+    function switchTab(tab){state.activeTab=tab==="stats"?"stats":"score";render();window.scrollTo({top:0,behavior:"smooth"})}
+    function openMenu(){$("#drawer").classList.add("open");$("#backdrop").classList.add("open");document.body.style.overflow="hidden"}
+    function closeMenu(){$("#drawer").classList.remove("open");$("#backdrop").classList.remove("open");unlock()}
+    function unlock(){if(!$("#reportBg").classList.contains("open")&&!$("#editBg").classList.contains("open")&&!$("#drawer").classList.contains("open"))document.body.style.overflow=""}
+    function toast(message){clearTimeout(toastId);$("#toast").textContent=message;$("#toast").classList.add("show");toastId=setTimeout(()=>$("#toast").classList.remove("show"),2200)}
+
+    let state=load(),timerId=null,toastId=null,edit=null;
+    const acts={gsG:["gsGoals",1],gsM:["gsMisses",1],gaG:["gaGoals",1],gaM:["gaMisses",1],ugsG:["gsGoals",-1],ugsM:["gsMisses",-1],ugaG:["gaGoals",-1],ugaM:["gaMisses",-1]};
+    $$('[data-act]').forEach(b=>b.onclick=()=>adjust(...acts[b.dataset.act]));$$('[data-tab]').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+    $("#statsGrid").onclick=e=>{const add=e.target.closest('[data-stat-add]'),undo=e.target.closest('[data-stat-undo]'),b=add||undo;if(b)adjustStat(b.dataset.position,b.dataset.statKey,add?1:-1)};
+    $("#scoreReboundGrid").onclick=e=>{const add=e.target.closest('[data-score-rebound-add]'),undo=e.target.closest('[data-score-rebound-undo]'),b=add||undo;if(b)adjustStat(b.dataset.position,b.dataset.statKey,add?1:-1)};
+    $("#timerToggle").onclick=toggle;$("#timerReset").onclick=()=>{stop();state.remainingSeconds=state.durationSeconds;render()};$("#oppAdd").onclick=()=>adjust("opposition",1);$("#oppUndo").onclick=()=>adjust("opposition",-1);$("#menuOpen").onclick=openMenu;$("#menuClose").onclick=closeMenu;$("#backdrop").onclick=closeMenu;$$('[data-min]').forEach(b=>b.onclick=()=>setDuration(b.dataset.min));$("#setCustom").onclick=()=>setDuration($("#customMinutes").value);$("#saveQuarter").onclick=saveQuarter;$("#resetQuarter").onclick=()=>{resetQuarter();closeMenu()};$("#addMinute").onclick=()=>{state.remainingSeconds+=60;render()};$("#finishGame").onclick=finish;$("#newGame").onclick=newGame;
+    $("#quarterHistory").onclick=e=>{const b=e.target.closest('[data-edit-quarter]');if(b){closeMenu();openEditor("current",b.dataset.editQuarter)}};
+    $("#savedGames").onclick=e=>{const view=e.target.closest('[data-view]'),editGame=e.target.closest('[data-edit-game]'),remove=e.target.closest('[data-delete]');if(view){closeMenu();openReport(view.dataset.view)}else if(editGame){closeMenu();openEditor("game",null,editGame.dataset.editGame)}else if(remove)deleteGame(remove.dataset.delete)};
+    $("#editQuarterSelect").onchange=e=>loadEditQuarter(e.target.value);$("#editBg").onclick=e=>{const score=e.target.closest('[data-edit]'),stat=e.target.closest('[data-edit-stat]');if(score&&edit){const k=score.dataset.edit;edit.draft[k]=Math.max(0,edit.draft[k]+n(score.dataset.delta));renderEditor()}else if(stat&&edit){const p=stat.dataset.editPosition,k=stat.dataset.editStat;edit.draft.stats[p][k]=Math.max(0,edit.draft.stats[p][k]+n(stat.dataset.delta));renderEditor()}else if(e.target===$("#editBg"))closeEditor()};$("#saveEdit").onclick=saveCorrection;$("#editClose").onclick=closeEditor;$("#editCancel").onclick=closeEditor;$("#copyReport").onclick=copyReport;$("#reportClose").onclick=closeReport;$("#reportDone").onclick=closeReport;$("#reportBg").onclick=e=>{if(e.target===$("#reportBg"))closeReport()};document.onkeydown=e=>{if(e.key==="Escape"){if($("#editBg").classList.contains("open"))closeEditor();else if($("#reportBg").classList.contains("open"))closeReport();else closeMenu()}};
+    if(state.isRunning)start();render();
   })();
   </script>
 </body>
